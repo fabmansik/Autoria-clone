@@ -48,7 +48,7 @@ public class JwtServiceImpl implements JwtService{
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(", "));
-        return generateToken(Map.of("roles", roles), userDetails, Duration.ofSeconds(15));
+        return generateToken(Map.of("roles", roles), userDetails, Duration.ofSeconds(30));
     }
     public String generateToken(Map<String, String> claims, UserDetails userDetails, Duration duration){
         return Jwts
@@ -63,7 +63,7 @@ public class JwtServiceImpl implements JwtService{
 
     @Override
     public boolean isRefreshType(String token) {
-        return resolveClaim(token, claims -> claims.get("type", String.class).equals("refresh"));
+        return resolveClaim(token, claims -> claims.get("type", String.class) == ("refresh"));
     }
 
     @Override

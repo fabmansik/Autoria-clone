@@ -35,14 +35,14 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder){
         InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
         inMemoryUserDetailsManager.createUser(User.builder()
-                        .username("milan")
-                        .password(passwordEncoder.encode("milan123"))
+                        .username("admin")
+                        .password(passwordEncoder.encode("admin123"))
                         .roles(Role.ADMIN.name())
                 .build());
         inMemoryUserDetailsManager.createUser(User.builder()
-                .username("artur")
-                .password(passwordEncoder.encode("artur123"))
-                .roles(Role.DEFAULT.name())
+                .username("manager")
+                .password(passwordEncoder.encode("manager123"))
+                .roles(Role.MANAGER.name())
                 .build());
         return inMemoryUserDetailsManager;
     }

@@ -12,10 +12,19 @@ public class CarMapper {
                 .power(car.getPower())
                 .model(car.getModel())
                 .producer(car.getProducer())
+                .year(car.getYear())
+                .type(car.getType())
+                .details(car.getDetails())
+                .runKm(car.getRunKm())
+                .engineVolume(car.getEngineVolume())
+                .color(car.getColor())
+                .region(car.getRegion())
+                .transmission(car.getTransmission())
+                .gearbox(car.getGearbox())
                 .photo(car.getPhoto())
                 .build();
     }
     public Car toCar(CarDto carDto){
-        return new Car(carDto.getModel(), carDto.getProducer(),carDto.getPower(),carDto.getPhoto());
+        return new Car(carDto.getId(), carDto.getModel(), carDto.getProducer(), carDto.getYear(), carDto.getPower(), carDto.getType(), carDto.getDetails(), carDto.getRunKm(), carDto.getEngineVolume(), carDto.getColor(), carDto.getRegion(), carDto.getPlace(), carDto.getTransmission(), carDto.getGearbox(), carDto.getPhoto());
     }
 }

@@ -10,6 +10,7 @@ import milansomyk.springboothw.service.CarService;
 import milansomyk.springboothw.view.Views;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +31,9 @@ public class CarController {
 
 
     @PostMapping
-    public ResponseEntity<CarDto> create(@RequestBody @Valid CarDto carDto){
+    public ResponseEntity<CarDto> create(@RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
+        String token = auth.substring("Bearer ".length());
+        System.out.println(token);
         return ResponseEntity.status(HttpStatus.CREATED).body(carService.create(carDto));
     }
     @JsonView(value = {Views.Level1.class})
