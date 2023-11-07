@@ -48,7 +48,7 @@ public class JwtServiceImpl implements JwtService{
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(", "));
-        return generateToken(Map.of("roles", roles), userDetails, Duration.ofSeconds(30));
+        return generateToken(Map.of("roles", roles), userDetails, Duration.ofHours(2));
     }
     public String generateToken(Map<String, String> claims, UserDetails userDetails, Duration duration){
         return Jwts

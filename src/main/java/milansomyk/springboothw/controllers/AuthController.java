@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.JwtResponse;
 import milansomyk.springboothw.dto.RefreshRequest;
 import milansomyk.springboothw.dto.SignInRequest;
+import milansomyk.springboothw.service.DbUserDetailsService;
 import milansomyk.springboothw.service.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
+    @Autowired
+    private final DbUserDetailsService userDetailsService;
     private final JwtService jwtService;
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
-    @PostMapping("/api/auth/signin")
+    @PostMapping("/login")
     public ResponseEntity<JwtResponse> signIn(@RequestBody SignInRequest signInRequest){
         try {
             Authentication authentication = UsernamePasswordAuthenticationToken
@@ -39,7 +45,7 @@ public class AuthController {
         String refresh = jwtService.generateRefreshToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token, refresh, null));
     }
-    @PostMapping("/api/auth/refresh")
+    @PostMapping("/login/refresh")
     public ResponseEntity<JwtResponse> refresh(@RequestBody RefreshRequest refreshRequest){
         String refreshToken = refreshRequest.getRefresh();
         if (jwtService.isTokenExpired(refreshToken)){

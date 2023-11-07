@@ -13,9 +13,10 @@ public class UserMapper {
                 .password(user.getPassword())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .role(user.getRole())
                 .build();
     }
     public User fromDto(UserDto userDto){
-        return new User(userDto.getId(), userDto.getUsername(), userDto.getPassword(), userDto.getEmail(), userDto.getPhone());
+        return new User(userDto.getId(), userDto.getUsername(), userDto.getPassword(), userDto.getEmail(), userDto.getPhone(), userDto.getRole());
     }
 }

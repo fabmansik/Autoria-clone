@@ -23,7 +23,7 @@ import java.util.List;
 public class CarController {
     private final CarService carService;
 
-    @JsonView(value = {Views.Level3.class})
+
     @GetMapping
     public ResponseEntity<List<CarDto>> getAll(){
         return ResponseEntity.ok(this.carService.getAll());
@@ -36,7 +36,7 @@ public class CarController {
         System.out.println(token);
         return ResponseEntity.status(HttpStatus.CREATED).body(carService.create(carDto));
     }
-    @JsonView(value = {Views.Level1.class})
+
     @GetMapping("/{id}")
     public ResponseEntity<CarDto> getById(@PathVariable int id){return ResponseEntity.of(this.carService.getById(id));}
 

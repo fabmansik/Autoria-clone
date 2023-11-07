@@ -4,6 +4,7 @@ import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.UserDto;
 import milansomyk.springboothw.entity.User;
+import milansomyk.springboothw.exceptions.UserAlreadyExistAuthenticationException;
 import milansomyk.springboothw.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +22,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAll());
     }
     @PostMapping
-    public ResponseEntity<UserDto> create(UserDto userDto){
+    public ResponseEntity<UserDto> create(@RequestBody UserDto userDto){
         return ResponseEntity.ok(userService.create(userDto));
     }
+    @PutMapping
+
     @DeleteMapping
     public void deleteById(int id){
         userService.deleteById(id);
