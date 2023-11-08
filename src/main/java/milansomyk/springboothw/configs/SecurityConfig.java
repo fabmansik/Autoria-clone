@@ -5,6 +5,7 @@ import milansomyk.springboothw.repository.UserRepository;
 import milansomyk.springboothw.security.JwtAuthenticationFilter;
 import milansomyk.springboothw.service.DbUserDetailsService;
 import milansomyk.springboothw.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,9 +53,10 @@ public class SecurityConfig {
 //    }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(DbUserDetailsService dbUserDetailsService){
+    public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder, DbUserDetailsService dbUserDetailsService){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(dbUserDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return daoAuthenticationProvider;
     }
     @Bean
@@ -64,7 +66,7 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request->request
-                        .requestMatchers("/login/**","/register/**","/buy/**","/users/**").permitAll()
+                        .requestMatchers("/login/**","/register/**","/buy/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

@@ -30,7 +30,7 @@ public class CarDto {
     @NotNull(message = "run km required")
     private Integer runKm;
     @DecimalMax("20.0") @DecimalMin("0.0")
-    private double engineVolume;
+    private Double engineVolume;
     private String color;
     @NotBlank(message = "region required")
     private String region;

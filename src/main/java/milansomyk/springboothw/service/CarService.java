@@ -3,8 +3,10 @@ package milansomyk.springboothw.service;
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.entity.Car;
+import milansomyk.springboothw.entity.User;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.repository.CarRepository;
+import milansomyk.springboothw.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,12 +21,15 @@ import java.util.Optional;
 public class CarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
+    private final UserRepository userRepository;
     public Optional<CarDto> getById(int id){
         Car car = carRepository.findById(id).get();
         CarDto dto = carMapper.toDto(car);
         return Optional.ofNullable(dto);
     }
-    public CarDto create(CarDto carDto){
+    public CarDto create(CarDto carDto, String username){
+        User user = userRepository.findByUsername(username);
+
         Car car = carMapper.toCar(carDto);
         Car savedCar = carRepository.save(car);
         return carMapper.toDto(savedCar);

@@ -67,6 +67,11 @@ public class JwtServiceImpl implements JwtService{
     }
 
     @Override
+    public String extractTokenFromAuth(String auth) {
+        return auth.substring("Bearer ".length());
+    }
+
+    @Override
     public String generateRefreshToken(UserDetails userDetails) {
         return generateToken(Map.of("type","refresh"), userDetails, Duration.ofDays(2));
     }

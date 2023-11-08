@@ -1,4 +1,4 @@
-package milansomyk.springboothw.dto;
+package milansomyk.springboothw.dto.requests;
 
 import lombok.Data;
 

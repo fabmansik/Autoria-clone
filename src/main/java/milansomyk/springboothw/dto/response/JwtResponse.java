@@ -1,4 +1,4 @@
-package milansomyk.springboothw.dto;
+package milansomyk.springboothw.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

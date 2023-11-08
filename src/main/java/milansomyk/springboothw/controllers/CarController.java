@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.service.CarService;
+import milansomyk.springboothw.service.JwtService;
 import milansomyk.springboothw.view.Views;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import java.util.List;
 
 public class CarController {
     private final CarService carService;
+    private final JwtService jwtService;
 
 
     @GetMapping
@@ -33,8 +35,9 @@ public class CarController {
     @PostMapping
     public ResponseEntity<CarDto> create(@RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
         String token = auth.substring("Bearer ".length());
+        String username = jwtService.extractUsername(token);
         System.out.println(token);
-        return ResponseEntity.status(HttpStatus.CREATED).body(carService.create(carDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(carService.create(carDto, username));
     }
 
     @GetMapping("/{id}")
@@ -54,7 +57,6 @@ public class CarController {
 
     @PostMapping("/{id}/photo")
     @SneakyThrows
-    @JsonView(Views.Level1.class)
     public ResponseEntity<CarDto> uploadPhoto(@PathVariable int id, MultipartFile photo) {
         return ResponseEntity.ok(this.carService.addPhotoByCarId(id,photo));
     }
