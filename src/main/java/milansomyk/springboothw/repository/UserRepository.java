@@ -16,6 +16,8 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Integer> {
     User findByUsername(String username);
     User findByEmail(String email);
+    User findByCarsContaining(Car car);
+    User findByPhone(Integer phone);
 //    @Modifying
 //    @Transactional
 //    @Query(value ="update User u set u.cars = :cars where u.id = :id")

@@ -37,20 +37,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
-//    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder){
-//        InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
-//        inMemoryUserDetailsManager.createUser(User.builder()
-//                        .username("admin")
-//                        .password(passwordEncoder.encode("admin123"))
-//                        .roles(Role.ADMIN.name())
-//                .build());
-//        inMemoryUserDetailsManager.createUser(User.builder()
-//                .username("manager")
-//                .password(passwordEncoder.encode("manager123"))
-//                .roles(Role.MANAGER.name())
-//                .build());
-//        return inMemoryUserDetailsManager;
-//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder, DbUserDetailsService dbUserDetailsService){
@@ -66,7 +52,7 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request->request
-                        .requestMatchers("/login/**","/register/**","/buy/**").permitAll()
+                        .requestMatchers("/login/**","/register/**","/search/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

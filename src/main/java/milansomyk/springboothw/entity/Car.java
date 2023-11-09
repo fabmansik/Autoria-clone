@@ -3,6 +3,7 @@ package milansomyk.springboothw.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import milansomyk.springboothw.enums.Currency;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 @Data
@@ -27,9 +28,20 @@ public class Car {
     private String place;
     private String transmission;
     private String gearbox;
+    private Integer price;
+    private String currencyName;
+    private String currencyValue;
+    private Integer checkCount;
+    private Integer watchesPerDay;
+    private Integer watchesPerWeek;
+    private Integer watchesPerMonth;
     private String photo;
 
-    public Car(Integer id, String model, String producer, Integer year, Integer power, String type, String details, Integer runKm, double engineVolume, String color, String region, String place, String transmission, String gearbox, String photo) {
+    public Car(String model, String producer, Integer year, Integer power,
+               String type, String details, Integer runKm, double engineVolume,
+               String color, String region, String place, String transmission,
+               String gearbox, Integer price, String currencyName, String currencyValue, Integer checkCount,
+               Integer watchesPerDay, Integer watchesPerWeek, Integer watchesPerMonth ,String photo) {
         this.model = model;
         this.producer = producer;
         this.year = year;
@@ -43,9 +55,20 @@ public class Car {
         this.place = place;
         this.transmission = transmission;
         this.gearbox = gearbox;
+        this.price = price;
+        this.currencyName = currencyName;
+        this.currencyValue = currencyValue;
+        this.checkCount = checkCount;
+        this.watchesPerDay = watchesPerDay;
+        this.watchesPerWeek = watchesPerWeek;
+        this.watchesPerMonth = watchesPerMonth;
         this.photo = photo;
     }
-    public void update(String model, String producer, Integer year, Integer power, String type, String details, Integer runKm, double engineVolume, String color, String region, String place, String transmission, String gearbox, String photo){
+    public void update(String model, String producer, Integer year, Integer power,
+                       String type, String details, Integer runKm, double engineVolume,
+                       String color, String region, String place, String transmission,
+                       String gearbox, Integer price, String currencyName, String currencyValue, Integer checkCount,
+                       Integer watchesPerDay, Integer watchesPerWeek, Integer watchesPerMonth , String photo){
         this.model = model;
         this.producer = producer;
         this.year = year;
@@ -59,6 +82,13 @@ public class Car {
         this.place = place;
         this.transmission = transmission;
         this.gearbox = gearbox;
+        this.price = price;
+        this.currencyName = currencyName;
+        this.currencyValue = currencyValue;
+        this.checkCount = checkCount;
+        this.watchesPerDay = watchesPerDay;
+        this.watchesPerWeek = watchesPerWeek;
+        this.watchesPerMonth = watchesPerMonth;
         this.photo = photo;
     }
 }

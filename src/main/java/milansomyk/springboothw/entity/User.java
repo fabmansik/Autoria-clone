@@ -2,14 +2,10 @@ package milansomyk.springboothw.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -30,20 +26,19 @@ public class User {
     private boolean premium;
     private boolean enabled;
     private String role;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_car",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "car_id")
     )
     private List<Car> cars;
 
-    public User(Integer id, String username, String password, String email, Integer phone, String role) {
+    public User(Integer id, String username, String password, String email, Integer phone) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.phone = phone;
-        this.role = role;
     }
 
     public User setPremium(boolean premium) {
@@ -61,5 +56,9 @@ public class User {
     public User setRole(String role){
         this.role = role;
         return this;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

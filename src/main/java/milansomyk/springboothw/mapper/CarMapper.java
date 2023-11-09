@@ -21,10 +21,17 @@ public class CarMapper {
                 .region(car.getRegion())
                 .transmission(car.getTransmission())
                 .gearbox(car.getGearbox())
+                .price(car.getPrice())
+                .currencyName(car.getCurrencyName())
+                .currencyValue(car.getCurrencyValue())
+                .checkCount(car.getCheckCount())
+                .watchesPerDay(car.getWatchesPerDay())
+                .watchesPerWeek(car.getWatchesPerWeek())
+                .watchesPerMonth(car.getWatchesPerMonth())
                 .photo(car.getPhoto())
                 .build();
     }
     public Car toCar(CarDto carDto){
-        return new Car(carDto.getId(), carDto.getModel(), carDto.getProducer(), carDto.getYear(), carDto.getPower(), carDto.getType(), carDto.getDetails(), carDto.getRunKm(), carDto.getEngineVolume(), carDto.getColor(), carDto.getRegion(), carDto.getPlace(), carDto.getTransmission(), carDto.getGearbox(), carDto.getPhoto());
+        return new Car(carDto.getModel(), carDto.getProducer(), carDto.getYear(), carDto.getPower(), carDto.getType(), carDto.getDetails(), carDto.getRunKm(), carDto.getEngineVolume(), carDto.getColor(), carDto.getRegion(), carDto.getPlace(), carDto.getTransmission(), carDto.getGearbox(), carDto.getPrice(), carDto.getCurrencyName(), carDto.getCurrencyValue(), carDto.getCheckCount(), carDto.getWatchesPerDay(), carDto.getWatchesPerWeek(), carDto.getWatchesPerMonth(), carDto.getPhoto() );
     }
 }

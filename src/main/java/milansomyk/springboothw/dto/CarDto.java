@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
+import milansomyk.springboothw.enums.Currency;
 import milansomyk.springboothw.view.Views;
 
 @Data
@@ -38,5 +39,14 @@ public class CarDto {
     private String place;
     private String transmission;
     private String gearbox;
+    @NotNull(message = "price is required")
+    private Integer price;
+    @NotBlank(message = "currencyName is required")
+    private String currencyName;
+    private String currencyValue;
+    private Integer checkCount;
+    private Integer watchesPerDay;
+    private Integer watchesPerWeek;
+    private Integer watchesPerMonth;
     private String photo;
 }

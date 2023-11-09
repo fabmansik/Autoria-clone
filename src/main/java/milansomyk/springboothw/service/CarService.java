@@ -2,6 +2,8 @@ package milansomyk.springboothw.service;
 
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
+import milansomyk.springboothw.dto.response.CarResponse;
+import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.entity.Car;
 import milansomyk.springboothw.entity.User;
 import milansomyk.springboothw.mapper.CarMapper;
@@ -13,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 @Data
 @Service
@@ -22,27 +24,51 @@ public class CarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
     private final UserRepository userRepository;
-    public Optional<CarDto> getById(int id){
+    private final CurrencyService currencyService;
+    public CarResponse findById(int id){
         Car car = carRepository.findById(id).get();
         CarDto dto = carMapper.toDto(car);
-        return Optional.ofNullable(dto);
+        return new CarResponse(dto);
     }
-    public CarDto create(CarDto carDto, String username){
-        User user = userRepository.findByUsername(username);
+    public String deleteById(int id){
+        Car car = carRepository.findById(id).get();
+        User user = userRepository.findByCarsContaining(car);
+        List<Car> cars = user.getCars();
+        cars.remove(car);
+        user.setCars(cars);
+        userRepository.save(user);
+        carRepository.deleteById(id);
+        return "Car with this id: "+id+", was deleted";
+    }
+    public CarsResponse getAllCars(){
+        return new CarsResponse(carRepository.findAll().stream().map(carMapper::toDto).toList());
+    }
+    public CarsResponse getSpecifiedCar(String producer, String model, String region, Integer minPrice, Integer maxPrice, String ccy){
+        List<Car> allCars = carRepository.findAll();
+        if(producer!=null){
+            allCars.removeIf(car-> !Objects.equals(car.getProducer(), producer));
+        }if(model != null){
+            allCars.removeIf(car->!Objects.equals(car.getModel(), model));
+        }if(region != null){
+            allCars.removeIf(car->!Objects.equals(car.getRegion(), region));
+        }
+        if(ccy != null){
+            if(minPrice!=null){
+                allCars.removeIf(car->currencyService.transferToCcy(ccy,car.getCurrencyName(), car.getPrice())<=minPrice);
+            }
+            if(maxPrice!=null){
+                allCars.removeIf(car->currencyService.transferToCcy(ccy,car.getCurrencyName(), car.getPrice())>=maxPrice);
+            }
+        }else{
+            if(minPrice!=null){
+                allCars.removeIf(car->currencyService.transferToCcy("USD",car.getCurrencyName(), car.getPrice())<=minPrice);
+            }
+            if(maxPrice!=null){
+                allCars.removeIf(car->currencyService.transferToCcy("USD",car.getCurrencyName(), car.getPrice())>=maxPrice);
+            }
+        }
 
-        Car car = carMapper.toCar(carDto);
-        Car savedCar = carRepository.save(car);
-        return carMapper.toDto(savedCar);
-    }
-    public void deleteById(int id){
-        this.carRepository.deleteById(id);
-    }
-
-    public List<CarDto> getAll(){
-        return carRepository.findAll()
-                .stream()
-                .map(carMapper::toDto)
-                .toList();
+        return new CarsResponse(allCars.stream().map(carMapper::toDto).toList());
     }
     public List<CarDto> getByPower(int power){
         return this.carRepository.getCarsByPower(power)

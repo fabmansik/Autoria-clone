@@ -1,14 +1,15 @@
 package milansomyk.springboothw.controllers;
 
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.UserDto;
+import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.dto.response.UserResponse;
-import milansomyk.springboothw.service.UserService;
+import milansomyk.springboothw.service.CarService;
 import milansomyk.springboothw.service.UsersManagementService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,34 +17,34 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/manage")
-public class UsersManagementController {
+
+public class ManagerController {
     private final UsersManagementService usersManagementService;
+    private final CarService carService;
+
     @GetMapping("/users")
     @RolesAllowed({"MANAGER","ADMIN"})
     public ResponseEntity<List<UserDto>> getAllUsers(){
         return ResponseEntity.ok(usersManagementService.getAllUsers());
     }
-
-    @GetMapping("/cars")
-    @RolesAllowed("{MANAGER, ADMIN}")
-    public ResponseEntity<CarsResponse> getAllCars(){
-        return ResponseEntity.ok(usersManagementService.getAllCars());
-    }
-    @PostMapping("/users/ban")
-    @RolesAllowed("{MANAGER, ADMIN}")
-    public UserResponse banUser(@RequestParam int id){
+    @PutMapping("/users/ban/{id}")
+    @RolesAllowed({"MANAGER", "ADMIN"})
+    public UserResponse banUser(@PathVariable int id){
         return usersManagementService.banUser(id);
     }
-    @DeleteMapping("/users/delete")
-    @RolesAllowed("{MANAGER, ADMIN}")
-    public String deleteCarById(@RequestParam int id){
-        return usersManagementService.deleteById(id);
-    }
-    @GetMapping("/cars")
 
-    @DeleteMapping
-    @RolesAllowed("ADMIN")
-    public void deleteById(int id){
-        usersManagementService.deleteUserById(id);
+    @DeleteMapping("/cars/{id}")
+    @RolesAllowed({"MANAGER","ADMIN"})
+    public String deleteCarById(@PathVariable int id){
+        return carService.deleteById(id);
     }
+
+    @GetMapping("/cars/{id}")
+    @RolesAllowed({"MANAGER","ADMIN"})
+    public CarResponse findCarById(@PathVariable int id){
+        return carService.findById(id);
+    }
+
+
+
 }

@@ -8,13 +8,11 @@ import milansomyk.springboothw.dto.response.JwtResponse;
 import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.entity.User;
 import milansomyk.springboothw.enums.Role;
-import milansomyk.springboothw.exceptions.UserAlreadyExistException;
+import milansomyk.springboothw.exceptions.UserBanedException;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.mapper.UserMapper;
 import milansomyk.springboothw.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,22 +34,19 @@ public class LoginRegisterRefreshService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     public UserResponse register(UserDto userDto){
-        System.out.println(userDto);
         User user = userMapper.fromDto(userDto);
         try{
-            if(userService.isUsernameAlreadyExists(user.getUsername())){
-                throw new UserAlreadyExistException("username already exists");
+            userService.isUsernameAlreadyExists(user.getUsername());
+            userService.isEmailAlreadyExists(user.getEmail());
+            userService.isPhoneNumberAlreadyUsed(user.getPhone());
             }
-            if (userService.isEmailAlreadyExists(user.getEmail())){
-                throw new UserAlreadyExistException("email already used");
-            }
-        }catch (UserAlreadyExistException e){
+        catch (IllegalArgumentException e){
             return new UserResponse(null,e.getMessage());
         }
 
         String encoded = passwordEncoder.encode(user.getPassword());
         user.setPassword(encoded);
-        User savedUser = userRepository.save(user.setPremium(false).setEnabled(true).setRole(Role.SELLER.toString()));
+        User savedUser = userRepository.save(user.setPremium(false).setEnabled(true).setRole(Role.SELLER.name()));
         return new UserResponse(userMapper.toDto(savedUser),null);
     }
     public JwtResponse login(SignInRequest signInRequest){
@@ -63,6 +58,15 @@ public class LoginRegisterRefreshService {
             return new JwtResponse(null,null, e.getMessage());
         }
         UserDetails userDetails = userDetailsService.loadUserByUsername(signInRequest.getUsername());
+        String username = userDetails.getUsername();
+        User user = userRepository.findByUsername(username);
+        try{
+            if (!user.isEnabled()){
+                throw new UserBanedException("Your account is banned");
+            }
+        }catch (UserBanedException e){
+            return new JwtResponse(null,null,e.getMessage());
+        }
         String token = jwtService.generateToken(userDetails);
         String refresh = jwtService.generateRefreshToken(userDetails);
         return new JwtResponse(token, refresh, null);
