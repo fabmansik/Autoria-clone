@@ -76,6 +76,7 @@ public class CarService {
                 .map(carMapper::toDto)
                 .toList();
     }
+
     public List<CarDto> getByProducer (String producer){
         return this.carRepository.getCarsByProducer(producer)
                 .stream()

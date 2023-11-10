@@ -18,6 +18,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findByEmail(String email);
     User findByCarsContaining(Car car);
     User findByPhone(Integer phone);
+    List<User> findByRole(String role);
 //    @Modifying
 //    @Transactional
 //    @Query(value ="update User u set u.cars = :cars where u.id = :id")

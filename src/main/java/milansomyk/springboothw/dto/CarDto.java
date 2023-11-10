@@ -7,6 +7,8 @@ import lombok.Data;
 import milansomyk.springboothw.enums.Currency;
 import milansomyk.springboothw.view.Views;
 
+import java.util.Date;
+
 @Data
 @Builder
 public class CarDto {
@@ -48,5 +50,11 @@ public class CarDto {
     private Integer watchesPerDay;
     private Integer watchesPerWeek;
     private Integer watchesPerMonth;
+    private boolean active;
+    private Date creationDate;
     private String photo;
+    public Integer addCheckCount(){
+        this.checkCount++;
+        return checkCount;
+    }
 }

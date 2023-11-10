@@ -9,5 +9,16 @@ spring:
     url: jdbc:mysql://localhost:3306/auto-ria?createIfNotExist=true
     username: root
     password: root
+  mail:
+    host: smtp.gmail.com
+    username: milansomyk@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+
 jwt:
   signingKey: super_long_secret_key_that_nobody_knows
