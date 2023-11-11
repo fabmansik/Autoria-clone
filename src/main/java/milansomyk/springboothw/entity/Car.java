@@ -1,6 +1,7 @@
 package milansomyk.springboothw.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -36,6 +37,7 @@ public class Car {
     private String currencyName;
     private String currencyValue;
     private Integer checkCount;
+    private Integer watchesTotal;
     private Integer watchesPerDay;
     private Integer watchesPerWeek;
     private Integer watchesPerMonth;
@@ -46,7 +48,7 @@ public class Car {
     public Car(String model, String producer, Integer year, Integer power,
                String type, String details, Integer runKm, double engineVolume,
                String color, String region, String place, String transmission,
-               String gearbox, Integer price, String currencyName, String currencyValue, Integer checkCount,
+               String gearbox, Integer price, String currencyName, String currencyValue, Integer checkCount, Integer watchesTotal ,
                Integer watchesPerDay, Integer watchesPerWeek, Integer watchesPerMonth, boolean active, Date creationDate ,String photo) {
         this.model = model;
         this.producer = producer;
@@ -65,6 +67,7 @@ public class Car {
         this.currencyName = currencyName;
         this.currencyValue = currencyValue;
         this.checkCount = checkCount;
+        this.watchesTotal = watchesTotal;
         this.watchesPerDay = watchesPerDay;
         this.watchesPerWeek = watchesPerWeek;
         this.watchesPerMonth = watchesPerMonth;
@@ -73,31 +76,65 @@ public class Car {
         this.photo = photo;
     }
     public void update(Car car){
-        this.model = car.getModel();
-        this.producer = car.getProducer();
-        this.year = car.getYear();
-        this.power = car.getPower();
-        this.type = car.getType();
-        this.details = car.getDetails();
-        this.runKm = car.getRunKm();
-        this.engineVolume = car.getEngineVolume();
-        this.color = car.getColor();
-        this.region = car.getRegion();
-        this.place = car.getPlace();
-        this.transmission = car.getTransmission();
-        this.gearbox = car.getGearbox();
-        this.price = car.getPrice();
-        this.currencyName = car.getCurrencyName();
-        this.currencyValue = car.getCurrencyValue();
-        this.checkCount = car.getCheckCount();
-        this.watchesPerDay = car.getWatchesPerDay();
-        this.watchesPerWeek = car.getWatchesPerWeek();
-        this.watchesPerMonth = car.getWatchesPerMonth();
-        this.active = car.isActive();
-        this.photo = car.getPhoto();
+
+        if(car.getModel()!=null){
+            this.model = car.getModel();
+        }
+        if(car.getProducer()!=null){
+            this.producer = car.getProducer();
+        }
+        if(car.getYear()!=null){
+            this.year = car.getYear();
+        }
+        if(car.getPower()!=null){
+            this.power = car.getPower();
+        }
+        if(car.getType()!=null){
+            this.type = car.getType();
+        }
+        if(car.getDetails()!=null){
+            this.details = car.getDetails();
+        }
+        if(car.getRunKm()!=null){
+            this.runKm = car.getRunKm();
+        }
+        if(car.getEngineVolume()!=null){
+            this.engineVolume = car.getEngineVolume();
+        }
+        if(car.getColor()!=null){
+            this.color = car.getColor();
+        }
+        if(car.getRegion()!=null){
+            this.region = car.getRegion();
+        }
+        if(car.getPlace()!=null){
+            this.place = car.getPlace();
+        }
+        if(car.getTransmission()!=null){
+            this.transmission = car.getTransmission();
+        }
+        if(car.getGearbox()!=null){
+            this.gearbox = car.getGearbox();
+        }
+        if(car.getPrice()!=null){
+            this.price = car.getPrice();
+        }
+        if(car.getCurrencyName()!=null){
+            this.currencyName = car.getCurrencyName();
+        }
+        if(car.getPhoto()!=null){
+            this.photo = car.getPhoto();
+        }
+
     }
     public Integer addCheckCount(){
         this.checkCount++;
         return checkCount;
+    }
+    public void addWatches(){
+        this.watchesTotal++;
+        this.watchesPerDay++;
+        this.watchesPerWeek++;
+        this.watchesPerMonth++;
     }
 }

@@ -20,4 +20,9 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
     @Query("update Car set photo = :bytes where id = :id")
     void updateCarPhotoById(@Param("id") int id, @Param("bytes") byte[] bytes);
 
+    @Modifying
+    @Transactional
+    @Query("update Car set watchesPerDay = 0")
+    void nullCarWatchesPerDay();
+
 }

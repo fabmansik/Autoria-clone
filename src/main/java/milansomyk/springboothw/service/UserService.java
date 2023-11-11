@@ -7,8 +7,7 @@ import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.entity.Car;
 import milansomyk.springboothw.entity.User;
-import milansomyk.springboothw.enums.Role;
-import milansomyk.springboothw.exceptions.SwearWordsExceptions;
+import java.time.LocalDate;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.mapper.UserMapper;
 import milansomyk.springboothw.repository.CarRepository;
@@ -16,12 +15,11 @@ import milansomyk.springboothw.repository.CurrencyValueRepository;
 import milansomyk.springboothw.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Data
 @Service
@@ -56,17 +54,10 @@ public class UserService {
             car.setCheckCount(0);
         }
         if(hasSwearWords(car.getDetails())) {
-            switch (car.getCheckCount()) {
-                case 0, 1, 2, 3 -> {
-                    carResponse.setError("swear words used, you have 3 more tries to change it. Tries: " + car.getCheckCount());
-                    car.addCheckCount();
-                }
-                case 4 -> {
-                    carResponse.setError("your car publish is not active. Car sent on moderation");
-                    managerModerationNotifier.sendMail(car);
-                    return carResponse;
-                }
-            }
+            carResponse.setError("swear words used, you have 3 more tries to change it. Tries: " + car.getCheckCount());
+            car.setActive(false);
+        }else{
+            car.setActive(true);
         }
         Car savedCar = addCar(car, user);
         carResponse.setCar(carMapper.toDto(savedCar));
@@ -77,6 +68,7 @@ public class UserService {
         Car car = carMapper.toCar(carDto);
         List<Car> cars = user.getCars();
         String ccy = carDto.getCurrencyName();
+        CarResponse carResponse = new CarResponse();
         try{
             isPersonalCarAndIndex(cars, id);
             currencyService.isValidCurrencyName(ccy);
@@ -84,11 +76,39 @@ public class UserService {
             return new CarResponse().setError(e.getMessage());
         }
         Car foundCar = carRepository.findById(id).get();
+        if(hasSwearWords(car.getDetails())&&foundCar.getCheckCount()<4) {
+            foundCar.addCheckCount();
+            foundCar.setActive(false);
+            carResponse.setError("swear words used, you have 3 more tries to change it. Tries: " + foundCar.getCheckCount());
+        }else{foundCar.setActive(true);}
+        if(foundCar.getCheckCount()==3){
+            carResponse.setError("your car publish is not active. Car sent on moderation");
+            foundCar.addCheckCount();
+            foundCar.setActive(false);
+            carRepository.save(foundCar);
+            managerModerationNotifier.sendMail(car);
+            return carResponse;
+        }
+        if(foundCar.getCheckCount()==4){
+            carResponse.setError("your car publish is not active. Car sent on moderation. Wait for moderator gmail answer");
+            return carResponse;
+        }
+
+        Integer checkCount = foundCar.getCheckCount();
+        System.out.println();
         foundCar.update(car);
+        foundCar.setCheckCount(checkCount);
+
         Car save = carRepository.save(foundCar);
-        return new CarResponse(carMapper.toDto(save));
+        carResponse.setCar(carMapper.toDto(save));
+        return carResponse;
     }
     public Car addCar(Car car, User user){
+        car.setCreationDate(new Date(System.currentTimeMillis()));
+        car.setWatchesPerDay(0);
+        car.setWatchesTotal(0);
+        car.setWatchesPerWeek(0);
+        car.setWatchesPerMonth(0);
         List<Car> cars = user.getCars();
         car.setCurrencyValue(currencyValueRepository.findCurrencyValueByCcy(car.getCurrencyName()).getSale());
         cars.add(car);

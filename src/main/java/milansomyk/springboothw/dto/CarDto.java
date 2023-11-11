@@ -47,6 +47,7 @@ public class CarDto {
     private String currencyName;
     private String currencyValue;
     private Integer checkCount;
+    private Integer watchesTotal;
     private Integer watchesPerDay;
     private Integer watchesPerWeek;
     private Integer watchesPerMonth;

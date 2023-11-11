@@ -1,6 +1,7 @@
 package milansomyk.springboothw.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.entity.Car;
 import milansomyk.springboothw.entity.User;
 import milansomyk.springboothw.enums.Role;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ManagerModerationNotifier {
     private final MailSender mailSender;
     private final UserRepository userRepository;
@@ -23,8 +25,9 @@ public class ManagerModerationNotifier {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("milansomyk@gmail.com");
             message.setTo(managerEmail);
-            message.setSubject("Moderation failed while posting a publish");
-            message.setText(car.toString());
+            message.setSubject("Moderation failed while posting a publish a car with id: "+car.getId());
+            message.setText("ID: "+car.getId()+"\n"+"Details: "+car.getDetails());
+            mailSender.send(message);
         }
     }
 }

@@ -9,16 +9,21 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/search")
+@RequestMapping
 public class BuyerController {
     private final CarService carService;
 
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<CarsResponse> searchCarWithParameters(
             @RequestParam(required = false) String producer, @RequestParam(required = false) String model,
             @RequestParam(required = false) String region, @RequestParam(required = false) Integer minPrice,
             @RequestParam(required = false) Integer maxPrice, @RequestParam(required = false) String ccy
     ){
         return ResponseEntity.ok(carService.getSpecifiedCar(producer, model, region, minPrice, maxPrice, ccy));
+    }
+    @PostMapping("/views/{id}")
+    public String addView(@PathVariable int id){
+        carService.addWatchesTotal(id);
+        return "Car with id: "+id+" watched";
     }
 }

@@ -12,7 +12,7 @@ spring:
   mail:
     host: smtp.gmail.com
     username: milansomyk@gmail.com
-    password: ${MAIL_PASSWORD}
+    password: vapcnbuemszhqbfe
     properties:
         mail:
           smtp:

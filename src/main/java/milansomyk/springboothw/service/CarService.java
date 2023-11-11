@@ -25,6 +25,11 @@ public class CarService {
     private final CarMapper carMapper;
     private final UserRepository userRepository;
     private final CurrencyService currencyService;
+    public void addWatchesTotal(int id){
+        Car car = carRepository.findById(id).get();
+        car.addWatches();
+        carRepository.save(car);
+    }
     public CarResponse findById(int id){
         Car car = carRepository.findById(id).get();
         CarDto dto = carMapper.toDto(car);

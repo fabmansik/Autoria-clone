@@ -17,28 +17,28 @@ import org.springframework.web.bind.annotation.*;
 public class SellerController {
     private final UserService userService;
     private final JwtService jwtService;
-    @RolesAllowed("SELLER")
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @PostMapping
     public ResponseEntity<CarResponse> createCar(@RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth ){
         String token = jwtService.extractTokenFromAuth(auth);
         String username = jwtService.extractUsername(token);
         return ResponseEntity.ok(userService.createCar(carDto, username));
     }
-    @RolesAllowed("SELLER")
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @PutMapping("/{id}")
     public ResponseEntity<CarResponse> editMyCar(@PathVariable int id, @RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
         String token = jwtService.extractTokenFromAuth(auth);
         String username = jwtService.extractUsername(token);
         return ResponseEntity.ok(userService.editMyCar(id, carDto, username));
     }
-    @RolesAllowed("SELLER")
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @GetMapping
     public ResponseEntity<CarsResponse> getMyCars(@RequestHeader("Authorization") String auth){
         String token = jwtService.extractTokenFromAuth(auth);
         String username = jwtService.extractUsername(token);
         return ResponseEntity.ok(userService.getMyCars(username));
     }
-    @RolesAllowed("SELLER")
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @DeleteMapping("/{id}")
     public String deleteMyCarById(@PathVariable int id, @RequestHeader("Authorization") String auth){
         String token = jwtService.extractTokenFromAuth(auth);
