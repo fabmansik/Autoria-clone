@@ -9,6 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CarsResponse {
     private List<CarDto> cars;
+    private Integer amount;
     private String error;
 
     public CarsResponse(List<CarDto> cars) {
@@ -17,6 +18,10 @@ public class CarsResponse {
 
     public CarsResponse setError(String error) {
         this.error = error;
+        return this;
+    }
+    public CarsResponse setAmount(Integer amount){
+        this.amount = amount;
         return this;
     }
 }

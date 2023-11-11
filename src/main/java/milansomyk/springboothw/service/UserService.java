@@ -174,26 +174,8 @@ public class UserService {
         }
         return false;
     }
-    public CarResponse hasSwearWordsUpgraded(Car car, CarResponse carResponse){
-        String[] swears = swearWordsDto.getSwears();
-        for (String swear : swears) {
-            if (car.getDetails().contains(swear)){
-                switch (car.getCheckCount()) {
-                    case 0, 1, 2, 3 -> {
-                        carResponse.setCar(carMapper.toDto(car));
-                        carResponse.setError("swear words used, you have 3 more tries to change it. Tries: " + car.getCheckCount());
-                        car.addCheckCount();
-                        return carResponse;
-                    }
-                    default-> {
-                        carResponse.setError("your car publish is not active. Car sent on moderation");
-                        managerModerationNotifier.sendMail(car);
-                        return carResponse;
-                    }
-                }
-            }
-        }
-        return carResponse;
+    public boolean isPremiumAccount(String username){
+        return userRepository.findByUsername(username).getPremium();
     }
 
 }

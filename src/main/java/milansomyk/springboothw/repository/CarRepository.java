@@ -14,7 +14,8 @@ import java.util.List;
 public interface CarRepository extends JpaRepository<Car, Integer> {
     List<Car> getCarsByPower(int power);
     List<Car> getCarsByProducer(String producer);
-
+    List<Car> findByProducerAndModelAndActive(String producer, String model, boolean active);
+    List<Car> findByProducerAndModelAndActiveAndRegion(String producer, String model, boolean active, String region);
     @Modifying
     @Transactional
     @Query("update Car set photo = :bytes where id = :id")
@@ -22,7 +23,20 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
 
     @Modifying
     @Transactional
+    @Query(nativeQuery = true, value = "SELECT * FROM cars WHERE cars.active = true")
+    List<Car> findAllActive();
+
+    @Modifying
+    @Transactional
     @Query("update Car set watchesPerDay = 0")
     void nullCarWatchesPerDay();
+    @Modifying
+    @Transactional
+    @Query("update Car set watchesPerWeek = 0")
+    void nullCarWatchesPerWeek();
+    @Modifying
+    @Transactional
+    @Query("update Car set watchesPerMonth = 0")
+    void nullCarWatchesPerMonth();
 
 }

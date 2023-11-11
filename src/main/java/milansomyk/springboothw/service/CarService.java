@@ -2,6 +2,7 @@ package milansomyk.springboothw.service;
 
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
+import milansomyk.springboothw.dto.response.AverageResponse;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.entity.Car;
@@ -23,8 +24,35 @@ import java.util.Objects;
 public class CarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
+    private final UserService userService;
     private final UserRepository userRepository;
     private final CurrencyService currencyService;
+    public AverageResponse findAveragePrice(String producer, String model, String ccy, String region,String username){
+        if(!userService.isPremiumAccount(username)){
+            return new AverageResponse(null, null,null,"Not premium account");
+        }
+        String currency;
+        List<Car> cars;
+        if(region!=null){
+            cars = carRepository.findByProducerAndModelAndActiveAndRegion(producer, model, true, region);
+        } else{
+            cars = carRepository.findByProducerAndModelAndActive(producer, model, true);
+        }
+        if(ccy != null){
+            cars.forEach(car-> car.setPrice(
+                    currencyService.transferToCcy(ccy,car.getCurrencyName(),car.getPrice())
+            ));
+            currency=ccy;
+        } else {
+            cars.forEach(car-> car.setPrice(
+                    currencyService.transferToCcy("USD",car.getCurrencyName(),car.getPrice())
+            ));
+            currency="USD";
+        }
+        List<Integer> prices = cars.stream().map(Car::getPrice).toList();
+        Integer average = averageCalculator(prices);
+        return new AverageResponse(average,currency,prices.size(),null);
+    }
     public void addWatchesTotal(int id){
         Car car = carRepository.findById(id).get();
         car.addWatches();
@@ -49,7 +77,8 @@ public class CarService {
         return new CarsResponse(carRepository.findAll().stream().map(carMapper::toDto).toList());
     }
     public CarsResponse getSpecifiedCar(String producer, String model, String region, Integer minPrice, Integer maxPrice, String ccy){
-        List<Car> allCars = carRepository.findAll();
+        List<Car> allCars = carRepository.findAllActive();
+
         if(producer!=null){
             allCars.removeIf(car-> !Objects.equals(car.getProducer(), producer));
         }if(model != null){
@@ -73,7 +102,7 @@ public class CarService {
             }
         }
 
-        return new CarsResponse(allCars.stream().map(carMapper::toDto).toList());
+        return new CarsResponse(allCars.stream().map(carMapper::toDto).toList()).setAmount(allCars.size());
     }
     public List<CarDto> getByPower(int power){
         return this.carRepository.getCarsByPower(power)
@@ -96,5 +125,12 @@ public class CarService {
          car.setPhoto(originalFileName);
          Car savedCar = this.carRepository.save(car);
          return this.carMapper.toDto(savedCar);
+    }
+    public Integer averageCalculator(List<Integer> integers){
+        Integer summary=0;
+        for (Integer integer : integers) {
+            summary+=integer;
+        }
+        return summary / integers.size();
     }
 }
