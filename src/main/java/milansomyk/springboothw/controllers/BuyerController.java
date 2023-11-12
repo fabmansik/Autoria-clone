@@ -7,6 +7,8 @@ import milansomyk.springboothw.service.CarService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
@@ -26,4 +28,8 @@ public class BuyerController {
         carService.addWatchesTotal(id);
         return "Car with id: "+id+" watched";
     }
+//    @PostMapping("/filter/producers")
+//    public ResponseEntity<List<String>> getProducers(){
+//        return ResponseEntity.ok(carService.get)
+//    }
 }
