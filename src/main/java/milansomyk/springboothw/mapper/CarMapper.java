@@ -1,5 +1,6 @@
 package milansomyk.springboothw.mapper;
 
+import milansomyk.springboothw.dto.BasicCarDto;
 import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.entity.Car;
 import org.springframework.stereotype.Component;
@@ -40,5 +41,30 @@ public class CarMapper {
                 carDto.getCurrencyName(), carDto.getCurrencyValue(), carDto.getCheckCount(), carDto.getWatchesTotal(),
                 carDto.getWatchesPerDay(), carDto.getWatchesPerWeek(), carDto.getWatchesPerMonth(), carDto.isActive(),
                 carDto.getCreationDate(),carDto.getImages() );
+    }
+    public BasicCarDto toBasicDto(Car car){
+        return BasicCarDto.builder()
+                .id(car.getId())
+                .model(car.getModel())
+                .producer(car.getProducer())
+                .year(car.getYear())
+                .power(car.getPower())
+                .type(car.getType())
+                .details(car.getDetails())
+                .runKm(car.getRunKm())
+                .engineVolume(car.getEngineVolume())
+                .color(car.getColor())
+                .region(car.getRegion())
+                .place(car.getPlace())
+                .transmission(car.getTransmission())
+                .gearbox(car.getGearbox())
+                .price(car.getPrice())
+                .currencyName(car.getCurrencyName())
+                .currencyValue(car.getCurrencyValue())
+                .checkCount(car.getCheckCount())
+                .active(car.isActive())
+                .creationDate(car.getCreationDate())
+                .images(car.getImages())
+                .build();
     }
 }

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import milansomyk.springboothw.view.Views;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import javax.swing.text.View;
 import java.util.List;
 
 @Data
@@ -38,12 +37,17 @@ public class User {
     )
     private List<Car> cars;
 
-    public User(Integer id, String username, String password, String email, Integer phone) {
+    public User(Integer id, String username, String password, String email, Integer phone,
+                boolean premium, boolean enabled, String role, List<Car> cars) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.phone = phone;
+        this.premium = premium;
+        this.enabled = enabled;
+        this.role = role;
+        this.cars = cars;
     }
 
     public User setPremium(boolean premium) {

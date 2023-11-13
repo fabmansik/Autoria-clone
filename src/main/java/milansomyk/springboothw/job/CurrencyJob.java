@@ -3,10 +3,9 @@ package milansomyk.springboothw.job;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import milansomyk.springboothw.dto.CurrencyValueDto;
-import milansomyk.springboothw.entity.CurrencyValue;
-import milansomyk.springboothw.mapper.CurrencyValueMapper;
-import milansomyk.springboothw.repository.CurrencyValueRepository;
+import milansomyk.springboothw.dto.CurrencyDto;
+import milansomyk.springboothw.entity.Currency;
+import milansomyk.springboothw.repository.CurrencyRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +19,10 @@ import java.util.Arrays;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class JobCurrencyValue {
+public class CurrencyJob {
     private final ObjectMapper objectMapper;
-    private final CurrencyValueRepository currencyValueRepository;
-    @Scheduled(cron = " 0 0 12 * * *")
+    private final CurrencyRepository currencyRepository;
+    @Scheduled(cron = "@daily")
     public void process() throws IOException {
         URL url = new URL("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5");
         try (InputStream input = url.openStream()) {
@@ -35,19 +34,19 @@ public class JobCurrencyValue {
                 json.append((char) c);
             }
             String string = json.toString();
-            CurrencyValueDto[] list = objectMapper.readValue(string, CurrencyValueDto[].class);
-            CurrencyValueDto value1 = Arrays.stream(list).toList().get(0);
-            CurrencyValueDto value2 = Arrays.stream(list).toList().get(1);
+            CurrencyDto[] list = objectMapper.readValue(string, CurrencyDto[].class);
+            CurrencyDto value1 = Arrays.stream(list).toList().get(0);
+            CurrencyDto value2 = Arrays.stream(list).toList().get(1);
 
-            CurrencyValue eur = currencyValueRepository.findById(1).get();
-            CurrencyValue usd = currencyValueRepository.findById(2).get();
+            Currency eur = currencyRepository.findById(1).get();
+            Currency usd = currencyRepository.findById(2).get();
 
             eur.setBuy(value1.getBuy()).setSale(value1.getSale());
             usd.setBuy(value2.getBuy()).setSale(value2.getSale());
 
             log.info("Currency Value Updated...");
-            currencyValueRepository.save(eur);
-            currencyValueRepository.save(usd);
+            currencyRepository.save(eur);
+            currencyRepository.save(usd);
         }
     }
 }

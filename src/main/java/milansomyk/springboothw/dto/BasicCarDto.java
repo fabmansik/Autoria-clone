@@ -1,20 +1,20 @@
 package milansomyk.springboothw.dto;
 
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import milansomyk.springboothw.entity.Image;
 import milansomyk.springboothw.view.Views;
 
 import java.util.Date;
 import java.util.List;
 
-@Getter
 @Builder
+@Data
 @AllArgsConstructor
-public class CarDto {
+public class BasicCarDto {
     @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
     private Integer id;
 
@@ -83,22 +83,6 @@ public class CarDto {
     @JsonView({Views.LevelManagerAdmin.class})
     private Integer checkCount;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonView({Views.LevelSeller.class,Views.LevelManagerAdmin.class})
-    private Integer watchesTotal;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonView({Views.LevelSeller.class,Views.LevelManagerAdmin.class})
-    private Integer watchesPerDay;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonView({Views.LevelSeller.class,Views.LevelManagerAdmin.class})
-    private Integer watchesPerWeek;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonView({Views.LevelSeller.class,Views.LevelManagerAdmin.class})
-    private Integer watchesPerMonth;
-
     @JsonView({Views.LevelManagerAdmin.class})
     private boolean active;
 
@@ -107,7 +91,4 @@ public class CarDto {
 
     @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
     private List<Image> images;
-    public CarDto(){
-
-    }
 }

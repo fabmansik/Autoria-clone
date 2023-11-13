@@ -1,8 +1,5 @@
 package milansomyk.springboothw.controllers;
 
-
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import milansomyk.springboothw.dto.ErrorDto;
 import org.hibernate.NonUniqueResultException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;

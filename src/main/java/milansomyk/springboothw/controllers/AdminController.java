@@ -6,14 +6,10 @@ import milansomyk.springboothw.dto.ModelDto;
 import milansomyk.springboothw.dto.ProducerDto;
 import milansomyk.springboothw.dto.UserDto;
 import milansomyk.springboothw.dto.response.UserResponse;
-import milansomyk.springboothw.entity.Model;
-import milansomyk.springboothw.entity.Producer;
-import milansomyk.springboothw.repository.ModelRepository;
-import milansomyk.springboothw.repository.ProducerRepository;
-import milansomyk.springboothw.service.ImageService;
-import milansomyk.springboothw.service.ModelService;
-import milansomyk.springboothw.service.ProducerService;
-import milansomyk.springboothw.service.UsersManagementService;
+import milansomyk.springboothw.service.entityServices.ImageService;
+import milansomyk.springboothw.service.entityServices.ModelService;
+import milansomyk.springboothw.service.entityServices.ProducerService;
+import milansomyk.springboothw.service.entityServices.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,21 +19,26 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
-    private final UsersManagementService usersManagementService;
+    private final UserService userService;
     private final ModelService modelService;
     private final ProducerService producerService;
     private final ImageService imageService;
+
+    @GetMapping("/managers")
+    @RolesAllowed("ADMIN")
+    public ResponseEntity<List<UserDto>> getAllManagers(){
+        return ResponseEntity.ok(userService.getAllManagers());
+    }
     @PostMapping("/managers")
     @RolesAllowed("ADMIN")
     public UserResponse createManager(@RequestBody UserDto userDto){
-        return usersManagementService.createManager(userDto);
+        return userService.createManager(userDto);
     }
     @PostMapping("/producer")
     @RolesAllowed("ADMIN")
     public ResponseEntity<ProducerDto> addProducer(@RequestBody ProducerDto producerDto){
         return ResponseEntity.ok(producerService.addProducer(producerDto));
     }
-
 
     @PostMapping("/model/{id}")
     @RolesAllowed("ADMIN")
@@ -48,15 +49,15 @@ public class AdminController {
     @PutMapping("/managers/{id}")
     @RolesAllowed("ADMIN")
     public UserDto setManagerById(@PathVariable int id){
-        return usersManagementService.setManager(id);
+        return userService.setManager(id);
     }
     @PutMapping("/premium/{id}")
     @RolesAllowed("ADMIN")
-    public String setPremiumById(@PathVariable int id){return usersManagementService.setPremium(id);}
+    public String setPremiumById(@PathVariable int id){return userService.setPremium(id);}
     @DeleteMapping("/users/{id}")
     @RolesAllowed("ADMIN")
     public String deleteUserById(@PathVariable int id){
-        return usersManagementService.deleteUserById(id);
+        return userService.deleteUserById(id);
     }
     @DeleteMapping("/images")
     @RolesAllowed("ADMIN")

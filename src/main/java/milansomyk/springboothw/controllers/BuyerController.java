@@ -1,13 +1,16 @@
 package milansomyk.springboothw.controllers;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.*;
+import milansomyk.springboothw.dto.consts.CarTypeConst;
+import milansomyk.springboothw.dto.consts.RegionConst;
 import milansomyk.springboothw.dto.response.CarsResponse;
-import milansomyk.springboothw.service.CarService;
-import milansomyk.springboothw.service.ModelService;
-import milansomyk.springboothw.service.ProducerService;
+import milansomyk.springboothw.dto.response.UserResponse;
+import milansomyk.springboothw.service.entityServices.CarService;
+import milansomyk.springboothw.service.entityServices.ModelService;
+import milansomyk.springboothw.service.entityServices.ProducerService;
+import milansomyk.springboothw.service.entityServices.UserService;
 import milansomyk.springboothw.view.Views;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +23,12 @@ import java.util.List;
 
 public class BuyerController {
     private final CarService carService;
+    private final UserService userService;
     private final ModelService modelService;
     private final ProducerService producerService;
-    private final CarTypeDto carTypeDto;
-    private final RegionDto regionDto;
+    private final CarTypeConst carTypeConst;
+    private final RegionConst regionConst;
+
     @JsonView(Views.LevelBuyer.class)
     @GetMapping("/search")
     public ResponseEntity<CarsResponse> search(
@@ -46,13 +51,13 @@ public class BuyerController {
     }
 
     @GetMapping("/search/types")
-    public ResponseEntity<CarTypeDto> getAllTypes(){
-        return ResponseEntity.ok(carTypeDto);
+    public ResponseEntity<CarTypeConst> getAllTypes(){
+        return ResponseEntity.ok(carTypeConst);
     }
 
     @GetMapping("/search/regions")
-    public ResponseEntity<RegionDto> getAllRegions(){
-        return ResponseEntity.ok(regionDto);
+    public ResponseEntity<RegionConst> getAllRegions(){
+        return ResponseEntity.ok(regionConst);
     }
 
     @PostMapping("/views/{id}")
@@ -64,6 +69,10 @@ public class BuyerController {
     @PostMapping("/search/notify-not-found")
     public String notifyNotFound(@RequestParam(required = false) String model, @RequestParam(required = false) String producer){
         return carService.notifyNotFound( model, producer);
+    }
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> create(@RequestBody UserDto userDto){
+        return ResponseEntity.ok(userService.register(userDto));
     }
 
 }

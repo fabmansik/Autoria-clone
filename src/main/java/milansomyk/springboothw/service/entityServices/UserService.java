@@ -1,18 +1,22 @@
-package milansomyk.springboothw.service;
+package milansomyk.springboothw.service.entityServices;
 
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
-import milansomyk.springboothw.dto.CarTypeDto;
-import milansomyk.springboothw.dto.RegionDto;
-import milansomyk.springboothw.dto.SwearWordsDto;
+import milansomyk.springboothw.dto.UserDto;
+import milansomyk.springboothw.dto.consts.CarTypeConst;
+import milansomyk.springboothw.dto.consts.RegionConst;
+import milansomyk.springboothw.dto.consts.SwearWordsConst;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
+import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.entity.*;
 
-import java.time.LocalDate;
+import milansomyk.springboothw.enums.Role;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.mapper.UserMapper;
 import milansomyk.springboothw.repository.*;
+import milansomyk.springboothw.service.DbUserDetailsService;
+import milansomyk.springboothw.service.mails.ManagerModerationNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Service
@@ -29,19 +34,37 @@ public class UserService {
     private final CarRepository carRepository;
     private final ProducerRepository producerRepository;
     private final ModelRepository modelRepository;
-    private final RegionDto regionDto;
-    private final CarTypeDto carTypeDto;
+    private final RegionConst regionConst;
+    private final CarTypeConst carTypeConst;
     private final UserMapper userMapper;
     private final CarMapper carMapper;
-    private final CurrencyValueRepository currencyValueRepository;
+    private final CurrencyRepository currencyRepository;
     private final CurrencyService currencyService;
-    private final SwearWordsDto swearWordsDto;
+    private final SwearWordsConst swearWordsConst;
     private final MailSender mailSender;
     private final ManagerModerationNotifier managerModerationNotifier;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private DbUserDetailsService dbUserDetailsService;
+
+    //Buyer:
+    public UserResponse register(UserDto userDto){
+        User user = userMapper.fromDto(userDto);
+        try{
+            isUsernameAlreadyExists(user.getUsername());
+            isEmailAlreadyExists(user.getEmail());
+            isPhoneNumberAlreadyUsed(user.getPhone());
+        }
+        catch (IllegalArgumentException e){
+            return new UserResponse(null,e.getMessage());
+        }
+
+        String encoded = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encoded);
+        User savedUser = userRepository.save(user.setPremium(false).setEnabled(true).setRole(Role.SELLER.name()));
+        return new UserResponse(userMapper.toDto(savedUser),null);
+    }
 
     //Seller:
     public CarResponse createCar(CarDto carDto, String username){
@@ -67,7 +90,11 @@ public class UserService {
             car.setActive(true);
         }
         Car savedCar = addCar(car, user);
-        carResponse.setCar(carMapper.toDto(savedCar));
+        if(user.getPremium()){
+            carResponse.setCarPremium(carMapper.toDto(savedCar));
+        }else{
+            carResponse.setCarBasic(carMapper.toBasicDto(savedCar));
+        }
         return carResponse;
     }
     public CarResponse editMyCar(int id, CarDto carDto, String username){
@@ -108,7 +135,11 @@ public class UserService {
         foundCar.setCheckCount(checkCount);
 
         Car save = carRepository.save(foundCar);
-        carResponse.setCar(carMapper.toDto(save));
+        if(user.getPremium()){
+            carResponse.setCarPremium(carMapper.toDto(save));
+        }else{
+            carResponse.setCarBasic(carMapper.toBasicDto(save));
+        }
         return carResponse;
     }
     public Car addCar(Car car, User user){
@@ -118,7 +149,7 @@ public class UserService {
         car.setWatchesPerWeek(0);
         car.setWatchesPerMonth(0);
         List<Car> cars = user.getCars();
-        car.setCurrencyValue(currencyValueRepository.findCurrencyValueByCcy(car.getCurrencyName()).getSale());
+        car.setCurrencyValue(currencyRepository.findCurrencyValueByCcy(car.getCurrencyName()).getSale());
         cars.add(car);
         user.setCars(cars);
         User saved = userRepository.save(user);
@@ -144,8 +175,70 @@ public class UserService {
     public CarsResponse getMyCars(String username){
         User user = userRepository.findByUsername(username);
         List<Car> cars = user.getCars();
-        return new CarsResponse(cars.stream().map(carMapper::toDto).toList());
+        if (user.getPremium()){
+            return new CarsResponse(cars.stream().map(carMapper::toDto).toList()).setAmount(cars.size());
+        }else{
+            return new CarsResponse().setCarsBasic(cars.stream().map(carMapper::toBasicDto).toList()).setAmount(cars.size());
+        }
+
     }
+
+    //Manager:
+    public List<UserDto> getAllUsers(){
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+    }
+    public List<UserDto> getAllManagers(){
+        return userRepository.findByRole("MANAGER").stream().map(userMapper::toDto).toList();
+    }
+    public UserResponse banUser(int id){
+        User foundUser = userRepository.findById(id).get();
+        foundUser.setEnabled(false);
+        User saved = userRepository.save(foundUser);
+        return new UserResponse(userMapper.toDto(saved), null);
+    }
+    public UserResponse unBanUser(int id){
+        User user = userRepository.findById(id).get();
+        user.setEnabled(true);
+        User saved = userRepository.save(user);
+        return new UserResponse(userMapper.toDto(saved),null);
+    }
+
+    //Admin:
+    public UserResponse createManager(UserDto userDto){
+        User user = userMapper.fromDto(userDto);
+        try{
+            isUsernameAlreadyExists(user.getUsername());
+            isEmailAlreadyExists(user.getEmail());
+        }catch (IllegalArgumentException e){
+            return new UserResponse(null,e.getMessage());
+        }
+        user.setRole(Role.MANAGER.name());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User saved = userRepository.save(user);
+        return new UserResponse(userMapper.toDto(saved), null);
+    }
+    public UserDto setManager(int id){
+        User user = userRepository.findById(id).get();
+        user.setRole("MANAGER");
+        User saved = userRepository.save(user);
+        return userMapper.toDto(saved);
+    }
+    public String deleteUserById(int id){
+        userRepository.deleteById(id);
+        return "user with id: "+id+" was deleted";
+    }
+    public String setPremium(int id){
+        User user = userRepository.findById(id).get();
+        user.setPremium(true);
+        userRepository.save(user);
+        return "user with id: "+id+" was set to premium account";
+    }
+
+    // Tools:
+
     public void isUsernameAlreadyExists(String username){
         if(userRepository.findByUsername(username) != null){
             throw new IllegalArgumentException("username already exists");
@@ -173,7 +266,7 @@ public class UserService {
         };
     }
     public boolean hasSwearWords(String details) {
-        String[] swears = swearWordsDto.getSwears();
+        String[] swears = swearWordsConst.getSwears();
         for (String swear : swears) {
             if (details.contains(swear)){
                 return true;
@@ -197,12 +290,12 @@ public class UserService {
         else if(!modelNames.contains(car.getModel())){
             throw new IllegalArgumentException("Not legal model");
         }
-        List<String> allRegions = Arrays.stream(regionDto.getRegions()).toList();
+        List<String> allRegions = Arrays.stream(regionConst.getRegions()).toList();
         if(car.getRegion()==null){}
         else if(!allRegions.contains(car.getRegion())){
             throw new IllegalArgumentException("Not legal region");
         }
-        List<String> allTypes = Arrays.stream(carTypeDto.getTypes()).toList();
+        List<String> allTypes = Arrays.stream(carTypeConst.getTypes()).toList();
         if(car.getType()==null){}
         else if(!allTypes.contains(car.getType())){
             throw new IllegalArgumentException("Not legal type");
@@ -221,12 +314,12 @@ public class UserService {
         else if(!modelNames.contains(model)){
             throw new IllegalArgumentException("Not legal model");
         }
-        List<String> allRegions = Arrays.stream(regionDto.getRegions()).toList();
+        List<String> allRegions = Arrays.stream(regionConst.getRegions()).toList();
         if(region==null){}
         else if(!allRegions.contains(region)){
             throw new IllegalArgumentException("Not legal region");
         }
-        List<String> allTypes = Arrays.stream(carTypeDto.getTypes()).toList();
+        List<String> allTypes = Arrays.stream(carTypeConst.getTypes()).toList();
         if(types==null){}
         else if(!allTypes.contains(types)){
             throw new IllegalArgumentException("Not legal type");

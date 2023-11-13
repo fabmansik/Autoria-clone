@@ -1,17 +1,18 @@
-package milansomyk.springboothw.service;
+package milansomyk.springboothw.service.entityServices;
 
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
-import milansomyk.springboothw.dto.CarTypeDto;
-import milansomyk.springboothw.dto.ImageExtensionsDto;
-import milansomyk.springboothw.dto.RegionDto;
+import milansomyk.springboothw.dto.consts.CarTypeConst;
+import milansomyk.springboothw.dto.consts.ImageExtensionsConst;
+import milansomyk.springboothw.dto.consts.RegionConst;
 import milansomyk.springboothw.dto.response.AverageResponse;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.entity.*;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import milansomyk.springboothw.service.JwtService;
+import milansomyk.springboothw.service.mails.AdminNotFoundNotifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,11 +34,11 @@ public class CarService {
     private final AdminNotFoundNotifier adminNotFoundNotifier;
     private final ModelRepository modelRepository;
     private final ProducerRepository producerRepository;
-    private final ImageExtensionsDto imageExtensionsDto;
+    private final ImageExtensionsConst imageExtensionsConst;
     private final ImageRepository imageRepository;
     private final JwtService jwtService;
-    private final RegionDto regionDto;
-    private final CarTypeDto carTypeDto;
+    private final RegionConst regionConst;
+    private final CarTypeConst carTypeConst;
 
     public AverageResponse findAveragePrice(String producer, String model, String ccy, String region, String username) {
         if (!userService.isPremiumAccount(username)) {
@@ -153,7 +154,7 @@ public class CarService {
             return new CarResponse().setError(e.getMessage());
         }
         String extension = file.getOriginalFilename().split("\\.")[1];
-        String[] extensions = imageExtensionsDto.getExtensions();
+        String[] extensions = imageExtensionsConst.getExtensions();
         List<String> list = Arrays.stream(extensions).toList();
         if (!list.contains(extension)) {
             return new CarResponse()

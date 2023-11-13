@@ -3,7 +3,6 @@ package milansomyk.springboothw.service;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Duration;
-import java.util.Date;
 
 public interface JwtService {
     boolean isTokenExpired(String token);

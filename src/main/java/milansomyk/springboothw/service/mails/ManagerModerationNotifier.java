@@ -1,4 +1,4 @@
-package milansomyk.springboothw.service;
+package milansomyk.springboothw.service.mails;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

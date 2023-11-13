@@ -1,4 +1,4 @@
-package milansomyk.springboothw.service;
+package milansomyk.springboothw.service.entityServices;
 
 import lombok.Data;
 import milansomyk.springboothw.entity.Car;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 @Service

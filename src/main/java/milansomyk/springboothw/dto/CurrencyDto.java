@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class CurrencyValueDto {
+public class CurrencyDto {
     private Integer id;
     private String ccy;
     private String buy;

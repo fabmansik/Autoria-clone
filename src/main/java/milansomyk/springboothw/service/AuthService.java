@@ -1,17 +1,15 @@
 package milansomyk.springboothw.service;
 
 import lombok.Data;
-import milansomyk.springboothw.dto.UserDto;
 import milansomyk.springboothw.dto.requests.RefreshRequest;
 import milansomyk.springboothw.dto.requests.SignInRequest;
 import milansomyk.springboothw.dto.response.JwtResponse;
-import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.entity.User;
-import milansomyk.springboothw.enums.Role;
 import milansomyk.springboothw.exceptions.UserBanedException;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.mapper.UserMapper;
 import milansomyk.springboothw.repository.UserRepository;
+import milansomyk.springboothw.service.entityServices.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Data
 @Service
-public class LoginRegisterRefreshService {
+public class AuthService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final CarMapper carMapper;
@@ -33,22 +31,7 @@ public class LoginRegisterRefreshService {
     private final DbUserDetailsService userDetailsService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    public UserResponse register(UserDto userDto){
-        User user = userMapper.fromDto(userDto);
-        try{
-            userService.isUsernameAlreadyExists(user.getUsername());
-            userService.isEmailAlreadyExists(user.getEmail());
-            userService.isPhoneNumberAlreadyUsed(user.getPhone());
-            }
-        catch (IllegalArgumentException e){
-            return new UserResponse(null,e.getMessage());
-        }
 
-        String encoded = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encoded);
-        User savedUser = userRepository.save(user.setPremium(false).setEnabled(true).setRole(Role.SELLER.name()));
-        return new UserResponse(userMapper.toDto(savedUser),null);
-    }
     public JwtResponse login(SignInRequest signInRequest){
         try {
             Authentication authentication = UsernamePasswordAuthenticationToken

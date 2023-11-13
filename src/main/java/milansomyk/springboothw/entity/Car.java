@@ -1,13 +1,9 @@
 package milansomyk.springboothw.entity;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import milansomyk.springboothw.enums.Currency;
-import milansomyk.springboothw.view.Views;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import java.util.Date;

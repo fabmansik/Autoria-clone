@@ -1,8 +1,7 @@
-package milansomyk.springboothw.service;
+package milansomyk.springboothw.service.entityServices;
 
 import lombok.Data;
 import milansomyk.springboothw.dto.ModelDto;
-import milansomyk.springboothw.dto.ProducerDto;
 import milansomyk.springboothw.entity.Model;
 import milansomyk.springboothw.entity.Producer;
 import milansomyk.springboothw.mapper.ModelMapper;

@@ -1,10 +1,8 @@
 package milansomyk.springboothw.controllers;
 
 import lombok.RequiredArgsConstructor;
-import milansomyk.springboothw.dto.CurrencyNameValueDto;
-import milansomyk.springboothw.dto.response.CurrenciesResponse;
-import milansomyk.springboothw.repository.CurrencyValueRepository;
-import milansomyk.springboothw.service.CurrencyService;
+import milansomyk.springboothw.dto.response.CurrencyResponse;
+import milansomyk.springboothw.service.entityServices.CurrencyService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +13,7 @@ import java.util.List;
 public class CurrencyController {
     private final CurrencyService currencyService;
     @GetMapping
-    public List<CurrencyNameValueDto> transferToAllCurrencies(@RequestParam String ccy, @RequestParam String value){
+    public List<CurrencyResponse> transferToAllCurrencies(@RequestParam String ccy, @RequestParam String value){
         return currencyService.transferToAllCurrencies(ccy,value);
     }
 }

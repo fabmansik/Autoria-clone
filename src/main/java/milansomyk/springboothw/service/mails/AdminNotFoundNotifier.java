@@ -1,7 +1,6 @@
-package milansomyk.springboothw.service;
+package milansomyk.springboothw.service.mails;
 
 import lombok.RequiredArgsConstructor;
-import milansomyk.springboothw.entity.Car;
 import milansomyk.springboothw.entity.User;
 import milansomyk.springboothw.enums.Role;
 import milansomyk.springboothw.repository.UserRepository;

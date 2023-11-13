@@ -1,7 +1,6 @@
 package milansomyk.springboothw.controllers;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
@@ -10,9 +9,9 @@ import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.dto.response.AverageResponse;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
-import milansomyk.springboothw.service.CarService;
+import milansomyk.springboothw.service.entityServices.CarService;
 import milansomyk.springboothw.service.JwtService;
-import milansomyk.springboothw.service.UserService;
+import milansomyk.springboothw.service.entityServices.UserService;
 import milansomyk.springboothw.view.Views;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
