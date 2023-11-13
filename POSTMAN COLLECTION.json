@@ -884,7 +884,7 @@
 							],
 							"port": "8080",
 							"path": [
-								"users"
+								"register"
 							]
 						}
 					},
