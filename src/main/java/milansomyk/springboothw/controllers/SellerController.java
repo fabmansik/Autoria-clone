@@ -12,6 +12,9 @@ import milansomyk.springboothw.service.JwtService;
 import milansomyk.springboothw.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,9 +25,21 @@ public class SellerController {
     private final JwtService jwtService;
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @PostMapping
-    public ResponseEntity<CarResponse> createCar(@RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth ){
+    public ResponseEntity<CarResponse> createCar(@RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
         String username = extractUsernameFromAuth(auth);
         return ResponseEntity.ok(userService.createCar(carDto, username));
+    }
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
+    @PutMapping("/add-img")
+    public ResponseEntity<CarResponse> addImage(@RequestParam Integer id,  @RequestParam MultipartFile image, @RequestHeader("Authorization") String auth) throws IOException {
+        String username = extractUsernameFromAuth(auth);
+        return ResponseEntity.ok(carService.addImage(id, image, username));
+    }
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
+    @DeleteMapping("/delete-img")
+    public String deleteImage(@RequestParam Integer id, @RequestParam String fileName, @RequestHeader("Authorization") String auth){
+        String username = extractUsernameFromAuth(auth);
+        return carService.deleteImage(id, fileName, username);
     }
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @PutMapping("/{id}")

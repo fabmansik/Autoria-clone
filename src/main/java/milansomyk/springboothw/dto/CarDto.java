@@ -1,16 +1,15 @@
 package milansomyk.springboothw.dto;
 
-import com.fasterxml.jackson.annotation.JsonView;
+
 import jakarta.validation.constraints.*;
-import lombok.Builder;
-import lombok.Data;
-import milansomyk.springboothw.enums.Currency;
-import milansomyk.springboothw.view.Views;
-
+import lombok.*;
+import milansomyk.springboothw.entity.Image;
 import java.util.Date;
+import java.util.List;
 
-@Data
+@Getter
 @Builder
+@AllArgsConstructor
 public class CarDto {
     private Integer id;
 
@@ -53,9 +52,12 @@ public class CarDto {
     private Integer watchesPerMonth;
     private boolean active;
     private Date creationDate;
-    private String photo;
+    private List<Image> images;
     public Integer addCheckCount(){
         this.checkCount++;
         return checkCount;
+    }
+    public CarDto(){
+
     }
 }

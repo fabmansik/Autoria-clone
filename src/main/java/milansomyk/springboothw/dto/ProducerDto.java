@@ -14,7 +14,6 @@ public class ProducerDto {
     private Integer id;
     @NotBlank(message = "name is required")
     private String name;
-    private List<Model> models;
     private String error;
 
     public ProducerDto setError(String error) {

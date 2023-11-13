@@ -17,7 +17,7 @@ public class Model {
     @GeneratedValue
     private Integer id;
     private String name;
-    @ManyToOne(cascade = {}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
             name = "producer_models",
             joinColumns = @JoinColumn(name = "model_id"),

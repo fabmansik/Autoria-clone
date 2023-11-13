@@ -10,10 +10,9 @@ public class ProducerMapper {
         return ProducerDto.builder()
                 .id(producer.getId())
                 .name(producer.getName())
-                .models(producer.getModels())
                 .build();
     }
     public Producer fromDto(ProducerDto producerDto){
-        return new Producer(producerDto.getId(), producerDto.getName(), producerDto.getModels());
+        return new Producer(producerDto.getId(), producerDto.getName());
     }
 }

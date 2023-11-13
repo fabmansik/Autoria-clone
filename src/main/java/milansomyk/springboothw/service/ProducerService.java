@@ -7,6 +7,8 @@ import milansomyk.springboothw.mapper.ProducerMapper;
 import milansomyk.springboothw.repository.ProducerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Data
 public class ProducerService {
@@ -21,5 +23,8 @@ public class ProducerService {
         }
 
         return producerMapper.toDto(producerRepository.save(producerMapper.fromDto(producerDto)));
+    }
+    public List<ProducerDto> findAllProducers(){
+        return producerRepository.findAll().stream().map(producerMapper::toDto).toList();
     }
 }

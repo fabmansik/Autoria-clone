@@ -16,6 +16,8 @@ import milansomyk.springboothw.service.UsersManagementService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
@@ -33,11 +35,14 @@ public class AdminController {
     public ResponseEntity<ProducerDto> addProducer(@RequestBody ProducerDto producerDto){
         return ResponseEntity.ok(producerService.addProducer(producerDto));
     }
-    @PostMapping("/add-model")
+
+
+    @PostMapping("/add-model/{id}")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<ModelDto> addModel(@RequestBody ModelDto model){
-        return ResponseEntity.ok(modelService.addModel(model));
+    public ResponseEntity<ModelDto> addModel(@RequestBody ModelDto model, @PathVariable Integer id){
+        return ResponseEntity.ok(modelService.addModel(id, model));
     }
+
     @PutMapping("/managers/{id}")
     @RolesAllowed("ADMIN")
     public UserDto setManagerById(@PathVariable int id){

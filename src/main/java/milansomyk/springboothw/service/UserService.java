@@ -2,22 +2,23 @@ package milansomyk.springboothw.service;
 
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
+import milansomyk.springboothw.dto.CarTypeDto;
+import milansomyk.springboothw.dto.RegionDto;
 import milansomyk.springboothw.dto.SwearWordsDto;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
-import milansomyk.springboothw.entity.Car;
-import milansomyk.springboothw.entity.User;
+import milansomyk.springboothw.entity.*;
+
 import java.time.LocalDate;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.mapper.UserMapper;
-import milansomyk.springboothw.repository.CarRepository;
-import milansomyk.springboothw.repository.CurrencyValueRepository;
-import milansomyk.springboothw.repository.UserRepository;
+import milansomyk.springboothw.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +27,10 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final CarRepository carRepository;
+    private final ProducerRepository producerRepository;
+    private final ModelRepository modelRepository;
+    private final RegionDto regionDto;
+    private final CarTypeDto carTypeDto;
     private final UserMapper userMapper;
     private final CarMapper carMapper;
     private final CurrencyValueRepository currencyValueRepository;
@@ -43,7 +48,9 @@ public class UserService {
         Car car = carMapper.toCar(carDto);
         User user = userRepository.findByUsername(username);
         CarResponse carResponse = new CarResponse();
+
         try{
+            isValidValues(car);
             carLimit(user);
             currencyService.isValidCurrencyName(car.getCurrencyName());
         }catch (IllegalArgumentException e){
@@ -70,6 +77,7 @@ public class UserService {
         String ccy = carDto.getCurrencyName();
         CarResponse carResponse = new CarResponse();
         try{
+            isValidValues(car);
             isPersonalCarAndIndex(cars, id);
             currencyService.isValidCurrencyName(ccy);
         }catch (IllegalArgumentException e){
@@ -85,8 +93,8 @@ public class UserService {
             carResponse.setError("your car publish is not active. Car sent on moderation");
             foundCar.addCheckCount();
             foundCar.setActive(false);
-            carRepository.save(foundCar);
-            managerModerationNotifier.sendMail(car);
+            Car save = carRepository.save(foundCar);
+            managerModerationNotifier.sendMail(save);
             return carResponse;
         }
         if(foundCar.getCheckCount()==4){
@@ -153,10 +161,9 @@ public class UserService {
             throw new IllegalArgumentException("Not premium account! You can`t upload more than 1");
         }
     }
-    public void isPersonalCarAndIndex(List<Car> cars, int id){
+    public void isPersonalCarAndIndex(List<Car> cars, int carId){
         List<Integer> list = cars.stream().map(Car::getId).toList();
-        int i = list.indexOf(id);
-        if (!list.contains(id)){
+        if (!list.contains(carId)){
             throw new IllegalArgumentException("Not legal car id argument");
         };
     }
@@ -177,6 +184,58 @@ public class UserService {
     public boolean isPremiumAccount(String username){
         return userRepository.findByUsername(username).getPremium();
     }
+    public void addImages(List<Image> images){
+        for (Image image : images) {
 
+        }
+    }
+    public void isValidValues(Car car){
+        List<Producer> allProducers = producerRepository.findAll();
+        List<String> list = allProducers.stream().map(Producer::getName).toList();
+        if(car.getProducer()==null){
+        }else if (!list.contains(car.getProducer())){
+            throw new IllegalArgumentException("Not legal producer");
+        }
+        List<Model> allModels = modelRepository.findAll();
+        List<String> modelNames = allModels.stream().map(Model::getName).toList();
+        if(car.getModel()==null){}
+        else if(!modelNames.contains(car.getModel())){
+            throw new IllegalArgumentException("Not legal model");
+        }
+        List<String> allRegions = Arrays.stream(regionDto.getRegions()).toList();
+        if(car.getRegion()==null){}
+        else if(!allRegions.contains(car.getRegion())){
+            throw new IllegalArgumentException("Not legal region");
+        }
+        List<String> allTypes = Arrays.stream(carTypeDto.getTypes()).toList();
+        if(car.getType()==null){}
+        else if(!allTypes.contains(car.getType())){
+            throw new IllegalArgumentException("Not legal type");
+        }
+    };
+    public void isValidValues(String producer, String model, String region, String types){
+        List<Producer> allProducers = producerRepository.findAll();
+        List<String> list = allProducers.stream().map(Producer::getName).toList();
+        if(producer==null){
+        }else if (!list.contains(producer)){
+            throw new IllegalArgumentException("Not legal producer");
+        }
+        List<Model> allModels = modelRepository.findAll();
+        List<String> modelNames = allModels.stream().map(Model::getName).toList();
+        if(model==null){}
+        else if(!modelNames.contains(model)){
+            throw new IllegalArgumentException("Not legal model");
+        }
+        List<String> allRegions = Arrays.stream(regionDto.getRegions()).toList();
+        if(region==null){}
+        else if(!allRegions.contains(region)){
+            throw new IllegalArgumentException("Not legal region");
+        }
+        List<String> allTypes = Arrays.stream(carTypeDto.getTypes()).toList();
+        if(types==null){}
+        else if(!allTypes.contains(types)){
+            throw new IllegalArgumentException("Not legal type");
+        }
+    };
 }
 

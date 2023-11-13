@@ -16,10 +16,6 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
     List<Car> getCarsByProducer(String producer);
     List<Car> findByProducerAndModelAndActive(String producer, String model, boolean active);
     List<Car> findByProducerAndModelAndActiveAndRegion(String producer, String model, boolean active, String region);
-    @Modifying
-    @Transactional
-    @Query("update Car set photo = :bytes where id = :id")
-    void updateCarPhotoById(@Param("id") int id, @Param("bytes") byte[] bytes);
 
     @Modifying
     @Transactional

@@ -9,6 +9,7 @@ import milansomyk.springboothw.enums.Currency;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -43,13 +44,19 @@ public class Car {
     private Integer watchesPerMonth;
     private boolean active;
     private Date creationDate;
-    private String photo;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "cars_images",
+            joinColumns = @JoinColumn(name = "cars_id"),
+            inverseJoinColumns = @JoinColumn(name = "images_id")
+    )
+    private List<Image> images;
 
     public Car(String model, String producer, Integer year, Integer power,
                String type, String details, Integer runKm, double engineVolume,
                String color, String region, String place, String transmission,
                String gearbox, Integer price, String currencyName, String currencyValue, Integer checkCount, Integer watchesTotal ,
-               Integer watchesPerDay, Integer watchesPerWeek, Integer watchesPerMonth, boolean active, Date creationDate ,String photo) {
+               Integer watchesPerDay, Integer watchesPerWeek, Integer watchesPerMonth, boolean active, Date creationDate ,List<Image> images) {
         this.model = model;
         this.producer = producer;
         this.year = year;
@@ -73,7 +80,7 @@ public class Car {
         this.watchesPerMonth = watchesPerMonth;
         this.active = active;
         this.creationDate = creationDate;
-        this.photo = photo;
+        this.images = images;
     }
     public void update(Car car){
 
@@ -122,8 +129,8 @@ public class Car {
         if(car.getCurrencyName()!=null){
             this.currencyName = car.getCurrencyName();
         }
-        if(car.getPhoto()!=null){
-            this.photo = car.getPhoto();
+        if(car.getImages()!=null){
+            this.images = car.getImages();
         }
 
     }

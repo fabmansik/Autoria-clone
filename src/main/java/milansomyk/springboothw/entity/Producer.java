@@ -1,9 +1,11 @@
 package milansomyk.springboothw.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import java.util.List;
@@ -25,5 +27,20 @@ public class Producer {
             joinColumns = @JoinColumn(name = "producer_id"),
             inverseJoinColumns = @JoinColumn(name = "model_id")
     )
+    @JsonIgnore
     private List<Model> models;
+
+    public Producer setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Producer setId(Integer id) {
+        this.id = id;
+        return this;
+    }
+    public Producer(Integer id, String name){
+        this.id = id;
+        this.name = name;
+    }
 }
