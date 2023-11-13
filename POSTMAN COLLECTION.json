@@ -1,0 +1,964 @@
+{
+	"info": {
+		"_postman_id": "ec819ad7-2b35-4885-a08f-d63fe496b54a",
+		"name": "Auto-ria-clone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28766369"
+	},
+	"item": [
+		{
+			"name": "AdminController",
+			"item": [
+				{
+					"name": "createManager",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2ODA2NywiZXhwIjoxNjk5ODc1MjY3fQ.krs7HitWrLBv31YZ-QGlX9MhxqHVIaO_ci8GfncMp4Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"manager\",\r\n    \"password\":\"manager123\",\r\n    \"email\":\"manager@gmail.com\",\r\n    \"phone\": 730234234\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/admin/managers",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"managers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addProducer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2ODA2NywiZXhwIjoxNjk5ODc1MjY3fQ.krs7HitWrLBv31YZ-QGlX9MhxqHVIaO_ci8GfncMp4Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Volvo\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/admin/producer",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"producer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addModel",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2ODA2NywiZXhwIjoxNjk5ODc1MjY3fQ.krs7HitWrLBv31YZ-QGlX9MhxqHVIaO_ci8GfncMp4Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Lupo\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/admin/model/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"model",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setManagerById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2ODA2NywiZXhwIjoxNjk5ODc1MjY3fQ.krs7HitWrLBv31YZ-QGlX9MhxqHVIaO_ci8GfncMp4Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/managers/3",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"managers",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setPremiumById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2ODA2NywiZXhwIjoxNjk5ODc1MjY3fQ.krs7HitWrLBv31YZ-QGlX9MhxqHVIaO_ci8GfncMp4Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/premium/3",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"premium",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteUserById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2ODA2NywiZXhwIjoxNjk5ODc1MjY3fQ.krs7HitWrLBv31YZ-QGlX9MhxqHVIaO_ci8GfncMp4Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/users/3",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"users",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteImageById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2ODA2NywiZXhwIjoxNjk5ODc1MjY3fQ.krs7HitWrLBv31YZ-QGlX9MhxqHVIaO_ci8GfncMp4Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/images?carId=5&imageId=352",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"images"
+							],
+							"query": [
+								{
+									"key": "carId",
+									"value": "5"
+								},
+								{
+									"key": "imageId",
+									"value": "352"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BuyerController",
+			"item": [
+				{
+					"name": "search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/search",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProducers",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/search/producers",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"search",
+								"producers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getModels",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/search/models/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"search",
+								"models",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllTypes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/search/types",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"search",
+								"types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addView",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/views/3",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"views",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "notifyNotFound",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/search/notify-not-found?producer=volvo",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"search",
+								"notify-not-found"
+							],
+							"query": [
+								{
+									"key": "producer",
+									"value": "volvo"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getRegions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/search/regions",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"search",
+								"regions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CurrencyController",
+			"item": [
+				{
+					"name": "transferCurrencyValue",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/currency?ccy=EUR&value=1000",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"currency"
+							],
+							"query": [
+								{
+									"key": "ccy",
+									"value": "EUR"
+								},
+								{
+									"key": "value",
+									"value": "1000"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SellerController",
+			"item": [
+				{
+					"name": "getMyCars",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/user/cars",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user",
+								"cars"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAveragePrice",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2MzYxOCwiZXhwIjoxNjk5ODcwODE4fQ.g4UAEv4ZEGTRt9LOpoGTEMnU65R7ddyYAP8wDY05Zvk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/user/cars/average-price?producer=bmw&model=m3&region=lviv",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user",
+								"cars",
+								"average-price"
+							],
+							"query": [
+								{
+									"key": "producer",
+									"value": "bmw"
+								},
+								{
+									"key": "model",
+									"value": "m3"
+								},
+								{
+									"key": "region",
+									"value": "lviv"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add-car",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"model\":\"Lupo\",\r\n    \"producer\":\"Volkswagen\",\r\n    \"year\":2010,\r\n    \"power\":100,\r\n    \"type\":\"Hatchback\",\r\n    \"details\":\"сукфывафывафыва\",\r\n    \"runKm\":5000,\r\n    \"engineVolume\":2.0,\r\n    \"color\":\"black\",\r\n    \"region\":\"Lvivskiy\",\r\n    \"place\":\"Novyi Rozdil\",\r\n    \"transmition\":\"RWD\",\r\n    \"gearbox\":\"5\",\r\n    \"price\":5000,\r\n    \"currencyName\":\"EUR\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/user/cars",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user",
+								"cars"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "edit-car",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"model\":\"Lupo\",\r\n    \"producer\":\"Volkswagen\",\r\n    \"year\":2003,\r\n    \"power\":120,\r\n    \"type\":\"Hatchback\",\r\n    \"details\":\"сфіваіва lskdflksjd lksdflksjd lkfsjldkfjl \",\r\n    \"runKm\":100000,\r\n    \"engineVolume\":2.0,\r\n    \"color\":\"black\",\r\n    \"region\":\"Lvivskiy\",\r\n    \"place\":\"Novyi Rozdil\",\r\n    \"transmition\":\"RWD\",\r\n    \"gearbox\":\"5\",\r\n    \"price\":5000,\r\n    \"currencyName\":\"EUR\",\r\n    \"photo\":null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/user/cars/6",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user",
+								"cars",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteMyCarById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/user/cars/6",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user",
+								"cars",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addImage",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2MzYxOCwiZXhwIjoxNjk5ODcwODE4fQ.g4UAEv4ZEGTRt9LOpoGTEMnU65R7ddyYAP8wDY05Zvk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/milan/Downloads/image.webp"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:8080/user/cars/img",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user",
+								"cars",
+								"img"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteImage",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTg2MzYxOCwiZXhwIjoxNjk5ODcwODE4fQ.g4UAEv4ZEGTRt9LOpoGTEMnU65R7ddyYAP8wDY05Zvk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/user/cars/img?id=2&fileName=car-2-image-11.webp",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user",
+								"cars",
+								"img"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								},
+								{
+									"key": "fileName",
+									"value": "car-2-image-11.webp"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ManagerController",
+			"item": [
+				{
+					"name": "getAllUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/manage/users",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"manage",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "banUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/manage/users/ban/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"manage",
+								"users",
+								"ban",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteCarById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/manage/cars/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"manage",
+								"cars",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCarById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWFuYWdlciIsImlhdCI6MTY5OTg2ODY5OCwiZXhwIjoxNjk5ODc1ODk4fQ.qTgSu51-i0cjI8jWZFJiuu5Ixf358aORtCaK04QsAR0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/manage/cars/5",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"manage",
+								"cars",
+								"5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Images",
+			"item": [
+				{
+					"name": "getImageByName",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/adImages/car-1-image-0.webp",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"adImages",
+								"car-1-image-0.webp"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "LoginRefreshController",
+			"item": [
+				{
+					"name": "registration",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"admin\",\r\n    \"password\":\"admin123\",\r\n    \"email\":\"admin@gmail.com\",\r\n    \"phone\": 1111111111\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/users",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logination",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"admin\",\r\n    \"password\":\"admin123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"refresh\":\"eyJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsInN1YiI6ImFkbWluIiwiaWF0IjoxNjk5ODY3ODEwLCJleHAiOjE3MDAwNDA2MTB9.hQUJJTEc1QaAXjRLIh_uhzrFswNSey8aTHN1z62Boec\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/refresh",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "seller_token",
+			"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfU0VMTEVSIiwic3ViIjoibWlsYW4iLCJpYXQiOjE2OTk1MjAyOTgsImV4cCI6MTY5OTUyNzQ5OH0.EYOKdwEUqg0X7Nmd61RiI9CsHB8LlA7s1f-8RU1WRK8"
+		},
+		{
+			"key": "admin_token",
+			"value": "eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTUyMTA0MSwiZXhwIjoxNjk5NTI4MjQxfQ"
+		},
+		{
+			"key": "admin_token_valid",
+			"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfQURNSU4iLCJzdWIiOiJhZG1pbiIsImlhdCI6MTY5OTUyMTA0MSwiZXhwIjoxNjk5NTI4MjQxfQ.oS2bdqT5z5NaeBbeErmUAXPKo6bkHVgwHElKMxrPLsI"
+		}
+	]
+}
