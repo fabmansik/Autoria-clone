@@ -28,6 +28,19 @@ public class BuyerController {
     private final ProducerService producerService;
     private final CarTypeConst carTypeConst;
     private final RegionConst regionConst;
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> create(@RequestBody UserDto userDto){
+        return ResponseEntity.ok(userService.register(userDto));
+    }
+    @PostMapping("/views/{id}")
+    public String addView(@PathVariable int id){
+        carService.addWatchesTotal(id);
+        return "Car with id: "+id+" watched";
+    }
+    @PostMapping("/search/notify-not-found")
+    public String notifyNotFound(@RequestParam(required = false) String model, @RequestParam(required = false) String producer){
+        return carService.notifyNotFound( model, producer);
+    }
 
     @JsonView(Views.LevelBuyer.class)
     @GetMapping("/search")
@@ -39,40 +52,20 @@ public class BuyerController {
     ){
         return ResponseEntity.ok(carService.getCars(producer, model, region, minPrice, maxPrice, ccy, type));
     }
-
     @GetMapping("/search/producers")
     public ResponseEntity<List<ProducerDto>> getAllProducers(){
         return ResponseEntity.ok(producerService.findAllProducers());
     }
-
     @GetMapping("/search/models/{id}")
     public ResponseEntity<List<ModelDto>> getAllModels(@PathVariable Integer id){
         return ResponseEntity.ok(modelService.findAllModels(id));
     }
-
     @GetMapping("/search/types")
     public ResponseEntity<CarTypeConst> getAllTypes(){
         return ResponseEntity.ok(carTypeConst);
     }
-
     @GetMapping("/search/regions")
     public ResponseEntity<RegionConst> getAllRegions(){
         return ResponseEntity.ok(regionConst);
     }
-
-    @PostMapping("/views/{id}")
-    public String addView(@PathVariable int id){
-        carService.addWatchesTotal(id);
-        return "Car with id: "+id+" watched";
-    }
-
-    @PostMapping("/search/notify-not-found")
-    public String notifyNotFound(@RequestParam(required = false) String model, @RequestParam(required = false) String producer){
-        return carService.notifyNotFound( model, producer);
-    }
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> create(@RequestBody UserDto userDto){
-        return ResponseEntity.ok(userService.register(userDto));
-    }
-
 }

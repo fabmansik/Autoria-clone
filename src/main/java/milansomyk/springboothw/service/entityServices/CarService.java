@@ -177,7 +177,12 @@ public class CarService {
         file.transferTo(new File(path + title));
         car.setImages(images);
         Car savedCar = carRepository.save(car);
-        return new CarResponse(this.carMapper.toDto(savedCar));
+        if(userService.isPremiumAccount(username)){
+            return new CarResponse(this.carMapper.toDto(savedCar));
+        }else{
+            return new CarResponse().setCarBasic(this.carMapper.toBasicDto(savedCar));
+        }
+
     }
     public String deleteImage(Integer id, String filename, String username){
         User user = userRepository.findByUsername(username);

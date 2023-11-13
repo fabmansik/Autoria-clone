@@ -33,30 +33,6 @@ public class SellerController {
         String username=extractUsernameFromAuth(auth);
         return ResponseEntity.ok(userService.createCar(carDto, username));
     }
-
-    @JsonView(Views.LevelSeller.class)
-    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
-    @PutMapping("/img")
-    public ResponseEntity<CarResponse> addImage(@RequestParam Integer id,  @RequestParam MultipartFile image, @RequestHeader("Authorization") String auth) throws IOException {
-        String username=extractUsernameFromAuth(auth);
-        return ResponseEntity.ok(carService.addImage(id, image, username));
-    }
-
-    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
-    @DeleteMapping("/img")
-    public String deleteImage(@RequestParam Integer id, @RequestParam String fileName, @RequestHeader("Authorization") String auth){
-        String username=extractUsernameFromAuth(auth);
-        return carService.deleteImage(id, fileName, username);
-    }
-
-    @JsonView(Views.LevelSeller.class)
-    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
-    @PutMapping("/{id}")
-    public ResponseEntity<CarResponse> editMyCar(@PathVariable int id, @RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
-        String username=extractUsernameFromAuth(auth);
-        return ResponseEntity.ok(userService.editMyCar(id, carDto, username));
-    }
-
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @GetMapping
@@ -64,20 +40,6 @@ public class SellerController {
         String username=extractUsernameFromAuth(auth);
         return ResponseEntity.ok(userService.getMyCars(username));
     }
-
-
-    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
-    @DeleteMapping("/{id}")
-    public String deleteMyCarById(@PathVariable int id, @RequestHeader("Authorization") String auth){
-        String username;
-        try{
-             username=extractUsernameFromAuth(auth);
-        }catch (JwtException e){
-            return e.getMessage();
-        }
-        return userService.deleteMyCar(id, username);
-    }
-
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @GetMapping("/average-price")
@@ -87,6 +49,37 @@ public class SellerController {
                                                             @RequestParam(required = false) String region){
         String username=extractUsernameFromAuth(auth);
         return ResponseEntity.ok(carService.findAveragePrice(producer, model, ccy, region, username));
+    }
+    @JsonView(Views.LevelSeller.class)
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
+    @PutMapping("/{id}")
+    public ResponseEntity<CarResponse> editMyCar(@PathVariable int id, @RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
+        String username=extractUsernameFromAuth(auth);
+        return ResponseEntity.ok(userService.editMyCar(id, carDto, username));
+    }
+    @JsonView(Views.LevelSeller.class)
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
+    @PutMapping("/img")
+    public ResponseEntity<CarResponse> addImage(@RequestParam Integer id,  @RequestParam MultipartFile image, @RequestHeader("Authorization") String auth) throws IOException {
+        String username=extractUsernameFromAuth(auth);
+        return ResponseEntity.ok(carService.addImage(id, image, username));
+    }
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
+    @DeleteMapping("/{id}")
+    public String deleteMyCarById(@PathVariable int id, @RequestHeader("Authorization") String auth){
+        String username;
+        try{
+            username=extractUsernameFromAuth(auth);
+        }catch (JwtException e){
+            return e.getMessage();
+        }
+        return userService.deleteMyCar(id, username);
+    }
+    @RolesAllowed({"SELLER","ADMIN","MANAGER"})
+    @DeleteMapping("/img")
+    public String deleteImage(@RequestParam Integer id, @RequestParam String fileName, @RequestHeader("Authorization") String auth){
+        String username=extractUsernameFromAuth(auth);
+        return carService.deleteImage(id, fileName, username);
     }
     public String extractUsernameFromAuth(String auth){
         String token = jwtService.extractTokenFromAuth(auth);

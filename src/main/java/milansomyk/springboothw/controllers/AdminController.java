@@ -6,13 +6,11 @@ import milansomyk.springboothw.dto.ModelDto;
 import milansomyk.springboothw.dto.ProducerDto;
 import milansomyk.springboothw.dto.UserDto;
 import milansomyk.springboothw.dto.response.UserResponse;
-import milansomyk.springboothw.service.entityServices.ImageService;
-import milansomyk.springboothw.service.entityServices.ModelService;
-import milansomyk.springboothw.service.entityServices.ProducerService;
-import milansomyk.springboothw.service.entityServices.UserService;
+import milansomyk.springboothw.service.entityServices.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,12 +21,8 @@ public class AdminController {
     private final ModelService modelService;
     private final ProducerService producerService;
     private final ImageService imageService;
+    private final CurrencyService currencyService;
 
-    @GetMapping("/managers")
-    @RolesAllowed("ADMIN")
-    public ResponseEntity<List<UserDto>> getAllManagers(){
-        return ResponseEntity.ok(userService.getAllManagers());
-    }
     @PostMapping("/managers")
     @RolesAllowed("ADMIN")
     public UserResponse createManager(@RequestBody UserDto userDto){
@@ -39,13 +33,22 @@ public class AdminController {
     public ResponseEntity<ProducerDto> addProducer(@RequestBody ProducerDto producerDto){
         return ResponseEntity.ok(producerService.addProducer(producerDto));
     }
-
     @PostMapping("/model/{id}")
     @RolesAllowed("ADMIN")
     public ResponseEntity<ModelDto> addModel(@RequestBody ModelDto model, @PathVariable Integer id){
         return ResponseEntity.ok(modelService.addModel(id, model));
     }
-
+    @PostMapping("/currency")
+    @RolesAllowed("ADMIN")
+    public String uploadCurrencies() throws IOException {
+        currencyService.uploadCurrencies();
+        return "Currency value Updated...";
+    }
+    @GetMapping("/managers")
+    @RolesAllowed("ADMIN")
+    public ResponseEntity<List<UserDto>> getAllManagers(){
+        return ResponseEntity.ok(userService.getAllManagers());
+    }
     @PutMapping("/managers/{id}")
     @RolesAllowed("ADMIN")
     public UserDto setManagerById(@PathVariable int id){

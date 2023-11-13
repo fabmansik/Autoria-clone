@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import milansomyk.springboothw.dto.BasicCarDto;
 import milansomyk.springboothw.dto.CarDto;
-import milansomyk.springboothw.entity.Car;
 import milansomyk.springboothw.view.Views;
 
 @Data
@@ -31,8 +30,8 @@ public class CarResponse {
         return this;
     }
 
-    public BasicCarDto setCarBasic(BasicCarDto carBasic) {
+    public CarResponse setCarBasic(BasicCarDto carBasic) {
         this.carBasic = carBasic;
-        return carBasic;
+        return this;
     }
 }

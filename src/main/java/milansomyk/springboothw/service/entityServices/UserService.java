@@ -149,7 +149,7 @@ public class UserService {
         car.setWatchesPerWeek(0);
         car.setWatchesPerMonth(0);
         List<Car> cars = user.getCars();
-        car.setCurrencyValue(currencyRepository.findCurrencyValueByCcy(car.getCurrencyName()).getSale());
+        car.setCurrencyValue(currencyRepository.findCurrencyByCcy(car.getCurrencyName()).getSale());
         cars.add(car);
         user.setCars(cars);
         User saved = userRepository.save(user);
@@ -185,10 +185,12 @@ public class UserService {
 
     //Manager:
     public List<UserDto> getAllUsers(){
-        return userRepository.findAll()
+        List<UserDto> allUsers = userRepository.findAll()
                 .stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
+        allUsers.removeIf(userDto -> userDto.getRole().equals("ADMIN"));
+        return allUsers;
     }
     public List<UserDto> getAllManagers(){
         return userRepository.findByRole("MANAGER").stream().map(userMapper::toDto).toList();
@@ -212,10 +214,13 @@ public class UserService {
         try{
             isUsernameAlreadyExists(user.getUsername());
             isEmailAlreadyExists(user.getEmail());
+            isPhoneNumberAlreadyUsed(user.getPhone());
+
         }catch (IllegalArgumentException e){
             return new UserResponse(null,e.getMessage());
         }
         user.setRole(Role.MANAGER.name());
+        user.setEnabled(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User saved = userRepository.save(user);
         return new UserResponse(userMapper.toDto(saved), null);
@@ -242,12 +247,12 @@ public class UserService {
     public void isUsernameAlreadyExists(String username){
         if(userRepository.findByUsername(username) != null){
             throw new IllegalArgumentException("username already exists");
-        };
+        }
     }
     public void isEmailAlreadyExists(String email){
         if(userRepository.findByEmail(email) != null){
             throw new IllegalArgumentException("email already in use");
-        };
+        }
     }
     public void carLimit(User user){
         if(!(user.getPremium() || user.getCars().size()<1)){
@@ -258,12 +263,12 @@ public class UserService {
         List<Integer> list = cars.stream().map(Car::getId).toList();
         if (!list.contains(carId)){
             throw new IllegalArgumentException("Not legal car id argument");
-        };
+        }
     }
     public void isPhoneNumberAlreadyUsed(Integer phone){
         if(userRepository.findByPhone(phone) != null){
             throw new IllegalArgumentException("phone number already in use");
-        };
+        }
     }
     public boolean hasSwearWords(String details) {
         String[] swears = swearWordsConst.getSwears();
@@ -300,7 +305,7 @@ public class UserService {
         else if(!allTypes.contains(car.getType())){
             throw new IllegalArgumentException("Not legal type");
         }
-    };
+    }
     public void isValidValues(String producer, String model, String region, String types){
         List<Producer> allProducers = producerRepository.findAll();
         List<String> list = allProducers.stream().map(Producer::getName).toList();
@@ -324,6 +329,6 @@ public class UserService {
         else if(!allTypes.contains(types)){
             throw new IllegalArgumentException("Not legal type");
         }
-    };
+    }
 }
 

@@ -31,4 +31,8 @@ public class Currency {
         this.sale = sale;
         return this;
     }
+    public Currency setCcy(String ccy){
+        this.ccy = ccy;
+        return this;
+    }
 }
