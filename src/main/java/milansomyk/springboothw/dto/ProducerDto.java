@@ -1,6 +1,7 @@
 package milansomyk.springboothw.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class ProducerDto {
     private Integer id;
     @NotBlank(message = "name is required")
@@ -20,4 +22,5 @@ public class ProducerDto {
         this.error = error;
         return this;
     }
+    public ProducerDto(){}
 }

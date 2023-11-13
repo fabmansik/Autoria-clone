@@ -1,7 +1,7 @@
 package milansomyk.springboothw.view;
 
 public class Views {
-    public static class Level1{}
-    public static class Level2{}
-    public static class Level3{}
+    public static class LevelManagerAdmin{}
+    public static class LevelSeller{}
+    public static class LevelBuyer{}
 }

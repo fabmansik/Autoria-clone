@@ -184,11 +184,6 @@ public class UserService {
     public boolean isPremiumAccount(String username){
         return userRepository.findByUsername(username).getPremium();
     }
-    public void addImages(List<Image> images){
-        for (Image image : images) {
-
-        }
-    }
     public void isValidValues(Car car){
         List<Producer> allProducers = producerRepository.findAll();
         List<String> list = allProducers.stream().map(Producer::getName).toList();

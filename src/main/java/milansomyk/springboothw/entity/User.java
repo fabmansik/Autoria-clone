@@ -1,10 +1,13 @@
 package milansomyk.springboothw.entity;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import milansomyk.springboothw.view.Views;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.swing.text.View;
 import java.util.List;
 
 @Data
@@ -24,7 +27,9 @@ public class User {
     @Column(unique = true)
     private Integer phone;
     private boolean premium;
+    @JsonView(Views.LevelManagerAdmin.class)
     private boolean enabled;
+    @JsonView(Views.LevelManagerAdmin.class)
     private String role;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_car",

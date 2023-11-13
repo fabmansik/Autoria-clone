@@ -10,6 +10,7 @@ import milansomyk.springboothw.entity.Model;
 import milansomyk.springboothw.entity.Producer;
 import milansomyk.springboothw.repository.ModelRepository;
 import milansomyk.springboothw.repository.ProducerRepository;
+import milansomyk.springboothw.service.ImageService;
 import milansomyk.springboothw.service.ModelService;
 import milansomyk.springboothw.service.ProducerService;
 import milansomyk.springboothw.service.UsersManagementService;
@@ -25,19 +26,20 @@ public class AdminController {
     private final UsersManagementService usersManagementService;
     private final ModelService modelService;
     private final ProducerService producerService;
+    private final ImageService imageService;
     @PostMapping("/managers")
     @RolesAllowed("ADMIN")
     public UserResponse createManager(@RequestBody UserDto userDto){
         return usersManagementService.createManager(userDto);
     }
-    @PostMapping("/add-producer")
+    @PostMapping("/producer")
     @RolesAllowed("ADMIN")
     public ResponseEntity<ProducerDto> addProducer(@RequestBody ProducerDto producerDto){
         return ResponseEntity.ok(producerService.addProducer(producerDto));
     }
 
 
-    @PostMapping("/add-model/{id}")
+    @PostMapping("/model/{id}")
     @RolesAllowed("ADMIN")
     public ResponseEntity<ModelDto> addModel(@RequestBody ModelDto model, @PathVariable Integer id){
         return ResponseEntity.ok(modelService.addModel(id, model));
@@ -53,7 +55,10 @@ public class AdminController {
     public String setPremiumById(@PathVariable int id){return usersManagementService.setPremium(id);}
     @DeleteMapping("/users/{id}")
     @RolesAllowed("ADMIN")
-    public String deleteById(@PathVariable int id){
+    public String deleteUserById(@PathVariable int id){
         return usersManagementService.deleteUserById(id);
     }
+    @DeleteMapping("/images")
+    @RolesAllowed("ADMIN")
+    public String deleteImageById(@RequestParam Integer carId, @RequestParam Integer imageId){return imageService.deleteImage(imageId, carId);}
 }

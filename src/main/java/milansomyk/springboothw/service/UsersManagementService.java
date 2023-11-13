@@ -9,6 +9,8 @@ import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.mapper.UserMapper;
 import milansomyk.springboothw.repository.CarRepository;
 import milansomyk.springboothw.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +24,8 @@ public class UsersManagementService {
     private final CarMapper carMapper;
     private final CarRepository carRepository;
     private final UserService userService;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //Manager:
     public List<UserDto> getAllUsers(){
@@ -48,6 +51,7 @@ public class UsersManagementService {
             return new UserResponse(null,e.getMessage());
         }
         user.setRole(Role.MANAGER.name());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User saved = userRepository.save(user);
         return new UserResponse(userMapper.toDto(saved), null);
     }

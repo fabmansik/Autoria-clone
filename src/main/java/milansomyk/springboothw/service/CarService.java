@@ -35,6 +35,7 @@ public class CarService {
     private final ProducerRepository producerRepository;
     private final ImageExtensionsDto imageExtensionsDto;
     private final ImageRepository imageRepository;
+    private final JwtService jwtService;
     private final RegionDto regionDto;
     private final CarTypeDto carTypeDto;
 

@@ -1,8 +1,6 @@
 package milansomyk.springboothw.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +25,7 @@ public class JwtServiceImpl implements JwtService{
         key = Keys.hmacShaKeyFor(signingKey.getBytes());
     }
     @Override
-    public boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) throws ExpiredJwtException {
         return resolveClaim(token, Claims::getExpiration).before(new Date());
     }
 

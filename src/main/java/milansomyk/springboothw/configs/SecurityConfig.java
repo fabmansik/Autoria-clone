@@ -1,5 +1,6 @@
 package milansomyk.springboothw.configs;
 
+import io.jsonwebtoken.JwtException;
 import milansomyk.springboothw.enums.Role;
 import milansomyk.springboothw.repository.UserRepository;
 import milansomyk.springboothw.security.JwtAuthenticationFilter;
@@ -47,11 +48,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
                                                    AuthenticationProvider authenticationProvider,
-                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception{
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request->request
-                        .requestMatchers("/login/**","/register/**","/search/**","/views/**",
+                        .requestMatchers("/login/**","/register/**","/refresh/**","/search/**","/views/**","/currency/**",
                                 "/get-producers/**","/get-models/**","/adImages/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

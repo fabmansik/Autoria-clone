@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import milansomyk.springboothw.entity.Car;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class UserDto {
     private Integer id;
     @NotBlank(message = "username required")
@@ -25,4 +27,7 @@ public class UserDto {
     @Pattern(regexp = "^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\\s\\./0-9]*$", message = "Invalid phone number")
     private Integer phone;
     private List<Car> cars;
+    public UserDto(){
+
+    }
 }
