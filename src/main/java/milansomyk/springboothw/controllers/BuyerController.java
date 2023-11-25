@@ -3,8 +3,7 @@ package milansomyk.springboothw.controllers;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.*;
-import milansomyk.springboothw.dto.consts.CarTypeConst;
-import milansomyk.springboothw.dto.consts.RegionConst;
+import milansomyk.springboothw.dto.consts.Constants;
 import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.service.entityServices.CarService;
@@ -26,8 +25,7 @@ public class BuyerController {
     private final UserService userService;
     private final ModelService modelService;
     private final ProducerService producerService;
-    private final CarTypeConst carTypeConst;
-    private final RegionConst regionConst;
+    private final Constants constants;
     @PostMapping("/register")
     public ResponseEntity<UserResponse> create(@RequestBody UserDto userDto){
         return ResponseEntity.ok(userService.register(userDto));
@@ -61,11 +59,11 @@ public class BuyerController {
         return ResponseEntity.ok(modelService.findAllModels(id));
     }
     @GetMapping("/search/types")
-    public ResponseEntity<CarTypeConst> getAllTypes(){
-        return ResponseEntity.ok(carTypeConst);
+    public ResponseEntity<String[]> getAllTypes(){
+        return ResponseEntity.ok(constants.getTypes());
     }
     @GetMapping("/search/regions")
-    public ResponseEntity<RegionConst> getAllRegions(){
-        return ResponseEntity.ok(regionConst);
+    public ResponseEntity<String[]> getAllRegions(){
+        return ResponseEntity.ok(constants.getRegions());
     }
 }

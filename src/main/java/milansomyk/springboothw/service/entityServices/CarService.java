@@ -2,9 +2,7 @@ package milansomyk.springboothw.service.entityServices;
 
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
-import milansomyk.springboothw.dto.consts.CarTypeConst;
-import milansomyk.springboothw.dto.consts.ImageExtensionsConst;
-import milansomyk.springboothw.dto.consts.RegionConst;
+import milansomyk.springboothw.dto.consts.Constants;
 import milansomyk.springboothw.dto.response.AverageResponse;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
@@ -34,11 +32,9 @@ public class CarService {
     private final AdminNotFoundNotifier adminNotFoundNotifier;
     private final ModelRepository modelRepository;
     private final ProducerRepository producerRepository;
-    private final ImageExtensionsConst imageExtensionsConst;
+    private final Constants constants;
     private final ImageRepository imageRepository;
     private final JwtService jwtService;
-    private final RegionConst regionConst;
-    private final CarTypeConst carTypeConst;
 
     public AverageResponse findAveragePrice(String producer, String model, String ccy, String region, String username) {
         if (!userService.isPremiumAccount(username)) {
@@ -154,7 +150,7 @@ public class CarService {
             return new CarResponse().setError(e.getMessage());
         }
         String extension = file.getOriginalFilename().split("\\.")[1];
-        String[] extensions = imageExtensionsConst.getExtensions();
+        String[] extensions = constants.getExtensions();
         List<String> list = Arrays.stream(extensions).toList();
         if (!list.contains(extension)) {
             return new CarResponse()

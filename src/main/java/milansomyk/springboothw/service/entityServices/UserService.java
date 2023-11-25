@@ -3,9 +3,7 @@ package milansomyk.springboothw.service.entityServices;
 import lombok.Data;
 import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.dto.UserDto;
-import milansomyk.springboothw.dto.consts.CarTypeConst;
-import milansomyk.springboothw.dto.consts.RegionConst;
-import milansomyk.springboothw.dto.consts.SwearWordsConst;
+import milansomyk.springboothw.dto.consts.Constants;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.dto.response.UserResponse;
@@ -34,13 +32,11 @@ public class UserService {
     private final CarRepository carRepository;
     private final ProducerRepository producerRepository;
     private final ModelRepository modelRepository;
-    private final RegionConst regionConst;
-    private final CarTypeConst carTypeConst;
+    private final Constants constants;
     private final UserMapper userMapper;
     private final CarMapper carMapper;
     private final CurrencyRepository currencyRepository;
     private final CurrencyService currencyService;
-    private final SwearWordsConst swearWordsConst;
     private final MailSender mailSender;
     private final ManagerModerationNotifier managerModerationNotifier;
     @Autowired
@@ -63,7 +59,7 @@ public class UserService {
         String encoded = passwordEncoder.encode(user.getPassword());
         user.setPassword(encoded);
         User savedUser = userRepository.save(user.setPremium(false).setEnabled(true).setRole(Role.SELLER.name()));
-        return new UserResponse(userMapper.toDto(savedUser),null);
+        return new UserResponse(userMapper.toResponseDto(savedUser),null);
     }
 
     //Seller:
@@ -187,25 +183,25 @@ public class UserService {
     public List<UserDto> getAllUsers(){
         List<UserDto> allUsers = userRepository.findAll()
                 .stream()
-                .map(userMapper::toDto)
+                .map(userMapper::toResponseDto)
                 .collect(Collectors.toList());
         allUsers.removeIf(userDto -> userDto.getRole().equals("ADMIN"));
         return allUsers;
     }
     public List<UserDto> getAllManagers(){
-        return userRepository.findByRole("MANAGER").stream().map(userMapper::toDto).toList();
+        return userRepository.findByRole("MANAGER").stream().map(userMapper::toResponseDto).toList();
     }
     public UserResponse banUser(int id){
         User foundUser = userRepository.findById(id).get();
         foundUser.setEnabled(false);
         User saved = userRepository.save(foundUser);
-        return new UserResponse(userMapper.toDto(saved), null);
+        return new UserResponse(userMapper.toResponseDto(saved), null);
     }
     public UserResponse unBanUser(int id){
         User user = userRepository.findById(id).get();
         user.setEnabled(true);
         User saved = userRepository.save(user);
-        return new UserResponse(userMapper.toDto(saved),null);
+        return new UserResponse(userMapper.toResponseDto(saved),null);
     }
 
     //Admin:
@@ -223,13 +219,13 @@ public class UserService {
         user.setEnabled(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User saved = userRepository.save(user);
-        return new UserResponse(userMapper.toDto(saved), null);
+        return new UserResponse(userMapper.toResponseDto(saved), null);
     }
     public UserDto setManager(int id){
         User user = userRepository.findById(id).get();
         user.setRole("MANAGER");
         User saved = userRepository.save(user);
-        return userMapper.toDto(saved);
+        return userMapper.toResponseDto(saved);
     }
     public String deleteUserById(int id){
         userRepository.deleteById(id);
@@ -271,7 +267,7 @@ public class UserService {
         }
     }
     public boolean hasSwearWords(String details) {
-        String[] swears = swearWordsConst.getSwears();
+        String[] swears = constants.getSwears();
         for (String swear : swears) {
             if (details.contains(swear)){
                 return true;
@@ -295,12 +291,12 @@ public class UserService {
         else if(!modelNames.contains(car.getModel())){
             throw new IllegalArgumentException("Not legal model");
         }
-        List<String> allRegions = Arrays.stream(regionConst.getRegions()).toList();
+        List<String> allRegions = Arrays.stream(constants.getRegions()).toList();
         if(car.getRegion()==null){}
         else if(!allRegions.contains(car.getRegion())){
             throw new IllegalArgumentException("Not legal region");
         }
-        List<String> allTypes = Arrays.stream(carTypeConst.getTypes()).toList();
+        List<String> allTypes = Arrays.stream(constants.getTypes()).toList();
         if(car.getType()==null){}
         else if(!allTypes.contains(car.getType())){
             throw new IllegalArgumentException("Not legal type");
@@ -319,12 +315,12 @@ public class UserService {
         else if(!modelNames.contains(model)){
             throw new IllegalArgumentException("Not legal model");
         }
-        List<String> allRegions = Arrays.stream(regionConst.getRegions()).toList();
+        List<String> allRegions = Arrays.stream(constants.getRegions()).toList();
         if(region==null){}
         else if(!allRegions.contains(region)){
             throw new IllegalArgumentException("Not legal region");
         }
-        List<String> allTypes = Arrays.stream(carTypeConst.getTypes()).toList();
+        List<String> allTypes = Arrays.stream(constants.getTypes()).toList();
         if(types==null){}
         else if(!allTypes.contains(types)){
             throw new IllegalArgumentException("Not legal type");
