@@ -17,7 +17,7 @@ public class AdminNotFoundNotifier {
     private final MailSender mailSender;
     private final UserRepository userRepository;
     public void sendMail(String type, String object){
-        List<User> managers = userRepository.findByRole(Role.ADMIN.name());
+        List<User> managers = userRepository.findByRole(Role.ADMIN.name()).orElse(null);
         List<String> adminsEmails = managers.stream().map(User::getEmail).toList();
         for (String adminEmail : adminsEmails) {
             SimpleMailMessage message = new SimpleMailMessage();

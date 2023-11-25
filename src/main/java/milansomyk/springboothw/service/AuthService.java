@@ -42,7 +42,7 @@ public class AuthService {
         }
         UserDetails userDetails = userDetailsService.loadUserByUsername(signInRequest.getUsername());
         String username = userDetails.getUsername();
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElse(null);
         try{
             if (!user.isEnabled()){
                 throw new UserBanedException("Your account is banned");

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.*;
 import milansomyk.springboothw.dto.consts.Constants;
 import milansomyk.springboothw.dto.response.CarsResponse;
+import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.service.entityServices.CarService;
 import milansomyk.springboothw.service.entityServices.ModelService;
@@ -27,8 +28,9 @@ public class BuyerController {
     private final ProducerService producerService;
     private final Constants constants;
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> create(@RequestBody UserDto userDto){
-        return ResponseEntity.ok(userService.register(userDto));
+    public ResponseEntity<ResponseContainer> create(@RequestBody UserDto userDto){
+        ResponseContainer responseContainer = userService.register(userDto);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PostMapping("/views/{id}")
     public String addView(@PathVariable int id){

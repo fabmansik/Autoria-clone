@@ -1,17 +1,23 @@
 package milansomyk.springboothw.service.entityServices;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.dto.consts.Constants;
 import milansomyk.springboothw.dto.response.AverageResponse;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
+import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.entity.*;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.repository.*;
 import milansomyk.springboothw.service.JwtService;
 import milansomyk.springboothw.service.mails.AdminNotFoundNotifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -22,7 +28,7 @@ import java.util.Objects;
 
 @Data
 @Service
-
+@Slf4j
 public class CarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
@@ -36,31 +42,44 @@ public class CarService {
     private final ImageRepository imageRepository;
     private final JwtService jwtService;
 
-    public AverageResponse findAveragePrice(String producer, String model, String ccy, String region, String username) {
+    public ResponseContainer findAveragePrice(String producer, String model, String ccy, String region, String username) {
+        ResponseContainer responseContainer = new ResponseContainer();
         if (!userService.isPremiumAccount(username)) {
-            return new AverageResponse(null, null, null, "Not premium account");
+            log.info("not premium account");
+            return responseContainer.setErrorMessageAndStatusCode("not premium account", HttpStatus.FORBIDDEN.value());
         }
         String currency;
         List<Car> cars;
-        if (region != null) {
-            cars = carRepository.findByProducerAndModelAndActiveAndRegion(producer, model, true, region);
+        if (StringUtils.hasText(region)) {
+            try{
+                cars = carRepository.findByProducerAndModelAndActiveAndRegion(producer, model, true, region);
+            }catch (Exception e){
+                log.info(e.getMessage());
+                return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+            }
         } else {
-            cars = carRepository.findByProducerAndModelAndActive(producer, model, true);
+            try{
+                cars = carRepository.findByProducerAndModelAndActive(producer, model, true);
+            }catch (Exception e){
+                log.info(e.getMessage());
+                return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+            }
         }
-        if (ccy != null) {
+        if (!StringUtils.hasText(ccy)) {
             cars.forEach(car -> car.setPrice(
-                    currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice())
+                    (int) currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice(), responseContainer).getResult()
             ));
             currency = ccy;
         } else {
             cars.forEach(car -> car.setPrice(
-                    currencyService.transferToCcy("USD", car.getCurrencyName(), car.getPrice())
+                    (int) currencyService.transferToCcy("USD", car.getCurrencyName(), car.getPrice(),responseContainer).getResult()
             ));
             currency = "USD";
         }
         List<Integer> prices = cars.stream().map(Car::getPrice).toList();
         Integer average = averageCalculator(prices);
-        return new AverageResponse(average, currency, prices.size(), null);
+        responseContainer.setSuccessResult(new AverageResponse(average, currency, prices.size()));
+        return responseContainer;
     }
 
     public void addWatchesTotal(int id) {
@@ -77,7 +96,7 @@ public class CarService {
 
     public String deleteById(int id) {
         Car car = carRepository.findById(id).get();
-        User user = userRepository.findByCarsContaining(car);
+        User user = userRepository.findByCarsContaining(car).orElse(null);
         List<Car> cars = user.getCars();
         cars.remove(car);
         user.setCars(cars);
@@ -142,23 +161,44 @@ public class CarService {
         return "No arguments";
     }
 
-    public CarResponse addImage(int id, MultipartFile file, String username) throws IOException {
-        List<Car> cars = userRepository.findByUsername(username).getCars();
+    public ResponseContainer addImage(int id, MultipartFile file, String username){
+        ResponseContainer responseContainer = new ResponseContainer();
+        User user;
         try {
-            userService.isPersonalCarAndIndex(cars, id);
-        } catch (IllegalArgumentException e) {
-            return new CarResponse().setError(e.getMessage());
+            user = userRepository.findByUsername(username).orElse(null);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
+        if (ObjectUtils.isEmpty(user)){
+            log.info("user is empty");
+            return responseContainer.setErrorMessageAndStatusCode("user is empty",HttpStatus.BAD_REQUEST.value());
+        }
+        List<Car> cars = user.getCars();
+        ResponseContainer personalCarAndIndex = userService.isPersonalCarAndIndex(cars, id, responseContainer);
+        if(personalCarAndIndex.isError()){
+            return personalCarAndIndex;
+        }
+
         String extension = file.getOriginalFilename().split("\\.")[1];
         String[] extensions = constants.getExtensions();
         List<String> list = Arrays.stream(extensions).toList();
         if (!list.contains(extension)) {
-            return new CarResponse()
-                    .setError("Not an image file! Supportive image extensions: "
+            responseContainer.setErrorMessageAndStatusCode("Not an image file! Supportive image extensions: "
                             + Arrays.toString(extensions)
-                            .replace("[", "").replace("]", ""));
+                            .replace("[", "").replace("]", ""),HttpStatus.BAD_REQUEST.value());
         }
-        Car car = this.carRepository.findById(id).orElseThrow();
+        Car car;
+        try {
+          car = this.carRepository.findById(id).orElse(null);
+        } catch (Exception e){
+            log.info(e.getMessage())
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if (ObjectUtils.isEmpty(car)){
+            log.info("car not found");
+            return responseContainer.setErrorMessageAndStatusCode("car not found",HttpStatus.BAD_REQUEST.value());
+        }
         List<Image> images = car.getImages();
         String title;
         if(images.size()!=0){
@@ -170,36 +210,93 @@ public class CarService {
         }
         String path = System.getProperty("user.home") + File.separator + "adImages" + File.separator;
         images.add(new Image(title));
-        file.transferTo(new File(path + title));
+        try {
+            file.transferTo(new File(path + title));
+        }catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
         car.setImages(images);
-        Car savedCar = carRepository.save(car);
+        Car savedCar;
+        try {
+            savedCar = carRepository.save(car);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
         if(userService.isPremiumAccount(username)){
-            return new CarResponse(this.carMapper.toDto(savedCar));
+            responseContainer.setSuccessResult(new CarResponse(this.carMapper.toDto(savedCar)));
+            return responseContainer;
         }else{
-            return new CarResponse().setCarBasic(this.carMapper.toBasicDto(savedCar));
+            responseContainer.setSuccessResult(new CarResponse().setCarBasic(this.carMapper.toBasicDto(savedCar)));
+            return responseContainer;
         }
 
     }
-    public String deleteImage(Integer id, String filename, String username){
-        User user = userRepository.findByUsername(username);
-        List<Car> cars = user.getCars();
-        try {
-            userService.isPersonalCarAndIndex(cars, id);
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
+    public ResponseContainer deleteImage(Integer id, String filename, String username){
+        ResponseContainer responseContainer = new ResponseContainer();
+        if(ObjectUtils.isEmpty(id)){
+            log.info("id is null");
+            return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
-        Car car = carRepository.findById(id).get();
+        if(!StringUtils.hasText(filename)){
+            log.info("filename is null");
+            return responseContainer.setErrorMessageAndStatusCode("filename is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(!StringUtils.hasText(username)){
+            log.info("username is null");
+            return responseContainer.setErrorMessageAndStatusCode("username is null", HttpStatus.BAD_REQUEST.value());
+        }
+        User user;
+        try {
+            user = userRepository.findByUsername(username).orElse(null);
+        } catch ( Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(user)){
+            log.info("user not found");
+            return responseContainer.setErrorMessageAndStatusCode("user not found", HttpStatus.BAD_REQUEST.value());
+        }
+        List<Car> cars = user.getCars();
+
+        ResponseContainer personalCarAndIndex = userService.isPersonalCarAndIndex(cars, id, responseContainer);
+        if(personalCarAndIndex.isError()){
+            log.info(personalCarAndIndex.getErrorMessage());
+            return personalCarAndIndex;
+        }
+        Car car;
+        try {
+            car = carRepository.findById(id).orElse(null);
+        }catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(car)){
+            log.info("car not found");
+            return responseContainer.setErrorMessageAndStatusCode("car not found",HttpStatus.BAD_REQUEST.value());
+        }
         List<Image> images = car.getImages();
         images.removeIf(image -> image.getImageName().equals(filename));
         car.setImages(images);
         String path = System.getProperty("user.home") + File.separator + "adImages" + File.separator;
         File f = new File(path+filename);
         if(!f.delete()){
-            return "Failed to delete image";
+            log.info("Failed to delete image");
+            return responseContainer.setErrorMessageAndStatusCode("Failed to delete image",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        carRepository.save(car);
-        imageRepository.deleteByImageName(filename);
-        return "Image with filename: "+filename+" was deleted";
+        try {
+            carRepository.save(car);
+        } catch (Exception e){
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        try {
+            imageRepository.deleteByImageName(filename);
+        } catch (Exception e){
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+        responseContainer.setSuccessResult("Image with filename: "+filename+" was deleted");
+        return responseContainer;
     }
 
     public Integer averageCalculator(List<Integer> integers) {

@@ -2,9 +2,11 @@ package milansomyk.springboothw.controllers;
 
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.dto.ModelDto;
 import milansomyk.springboothw.dto.ProducerDto;
 import milansomyk.springboothw.dto.UserDto;
+import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.service.entityServices.*;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +27,9 @@ public class AdminController {
 
     @PostMapping("/managers")
     @RolesAllowed("ADMIN")
-    public UserResponse createManager(@RequestBody UserDto userDto){
-        return userService.createManager(userDto);
+    public ResponseEntity<ResponseContainer> createManager(@RequestBody UserDto userDto){
+        ResponseContainer responseContainer = userService.createManager(userDto);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PostMapping("/producer")
     @RolesAllowed("ADMIN")

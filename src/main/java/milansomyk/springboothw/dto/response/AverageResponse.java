@@ -14,10 +14,5 @@ public class AverageResponse {
     private Integer price;
     private String ccy;
     private Integer amount;
-    private String error;
 
-    public AverageResponse setError(String error) {
-        this.error = error;
-        return this;
-    }
 }

@@ -9,6 +9,7 @@ import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.dto.response.AverageResponse;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
+import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.service.entityServices.CarService;
 import milansomyk.springboothw.service.JwtService;
 import milansomyk.springboothw.service.entityServices.UserService;
@@ -29,57 +30,59 @@ public class SellerController {
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @JsonView(Views.LevelSeller.class)
     @PostMapping
-    public ResponseEntity<CarResponse> createCar(@RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
-        String username=extractUsernameFromAuth(auth);
-        return ResponseEntity.ok(userService.createCar(carDto, username));
+    public ResponseEntity<ResponseContainer> createCar(@RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
+        String username = extractUsernameFromAuth(auth);
+        ResponseContainer responseContainer = userService.createCar(carDto, username);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @GetMapping
-    public ResponseEntity<CarsResponse> getMyCars(@RequestHeader("Authorization") String auth){
+    public ResponseEntity<ResponseContainer> getMyCars(@RequestHeader("Authorization") String auth){
         String username=extractUsernameFromAuth(auth);
-        return ResponseEntity.ok(userService.getMyCars(username));
+        ResponseContainer responseContainer = userService.getMyCars(username);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @GetMapping("/average-price")
-    public ResponseEntity<AverageResponse> findAveragePrice(@RequestHeader("Authorization") String auth,
+    public ResponseEntity<ResponseContainer> findAveragePrice(@RequestHeader("Authorization") String auth,
                                                             @RequestParam String producer, @RequestParam String model,
                                                             @RequestParam(required = false) String ccy,
                                                             @RequestParam(required = false) String region){
         String username=extractUsernameFromAuth(auth);
-        return ResponseEntity.ok(carService.findAveragePrice(producer, model, ccy, region, username));
+        ResponseContainer responseContainer = carService.findAveragePrice(producer, model, ccy, region, username);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @PutMapping("/{id}")
-    public ResponseEntity<CarResponse> editMyCar(@PathVariable int id, @RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
+    public ResponseEntity<ResponseContainer> editMyCar(@PathVariable int id, @RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
         String username=extractUsernameFromAuth(auth);
-        return ResponseEntity.ok(userService.editMyCar(id, carDto, username));
+        ResponseContainer responseContainer = userService.editMyCar(id, carDto, username);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @PutMapping("/img")
-    public ResponseEntity<CarResponse> addImage(@RequestParam Integer id,  @RequestParam MultipartFile image, @RequestHeader("Authorization") String auth) throws IOException {
+    public ResponseEntity<ResponseContainer> addImage(@RequestParam Integer id,  @RequestParam MultipartFile image, @RequestHeader("Authorization") String auth) throws IOException {
         String username=extractUsernameFromAuth(auth);
-        return ResponseEntity.ok(carService.addImage(id, image, username));
+        ResponseContainer responseContainer = carService.addImage(id, image, username);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @DeleteMapping("/{id}")
-    public String deleteMyCarById(@PathVariable int id, @RequestHeader("Authorization") String auth){
-        String username;
-        try{
-            username=extractUsernameFromAuth(auth);
-        }catch (JwtException e){
-            return e.getMessage();
-        }
-        return userService.deleteMyCar(id, username);
+    public ResponseEntity<ResponseContainer> deleteMyCarById(@PathVariable int id, @RequestHeader("Authorization") String auth){
+        String username=extractUsernameFromAuth(auth);
+        ResponseContainer responseContainer = userService.deleteMyCar(id, username);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @DeleteMapping("/img")
-    public String deleteImage(@RequestParam Integer id, @RequestParam String fileName, @RequestHeader("Authorization") String auth){
+    public ResponseEntity<ResponseContainer> deleteImage(@RequestParam Integer id, @RequestParam String fileName, @RequestHeader("Authorization") String auth){
         String username=extractUsernameFromAuth(auth);
-        return carService.deleteImage(id, fileName, username);
+        ResponseContainer responseContainer = carService.deleteImage(id, fileName, username);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     public String extractUsernameFromAuth(String auth){
         String token = jwtService.extractTokenFromAuth(auth);

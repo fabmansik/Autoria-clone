@@ -18,16 +18,9 @@ public class CarResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
     private BasicCarDto carBasic;
-    @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
-    private String error;
 
     public CarResponse(CarDto car){
         this.carPremium = car;
-    }
-
-    public CarResponse setError(String error) {
-        this.error = error;
-        return this;
     }
 
     public CarResponse setCarBasic(BasicCarDto carBasic) {
