@@ -30,7 +30,8 @@ public class CurrencyService {
     private final CurrencyMapper currencyMapper;
     private final ObjectMapper objectMapper;
     private final Constants constants;
-    public ResponseContainer transferToAllCurrencies(String ccy, String value, ResponseContainer responseContainer){
+    public ResponseContainer transferToAllCurrencies(String ccy, String value){
+        ResponseContainer responseContainer = new ResponseContainer();
         if(ccy==null){
             log.info("ccy is null");
             return responseContainer.setErrorMessageAndStatusCode("ccy is null",HttpStatus.BAD_REQUEST.value());

@@ -13,11 +13,6 @@ public class ModelDto {
     private Integer id;
     private String name;
     private Producer producer;
-    private String error;
 
-    public ModelDto setError(String error) {
-        this.error = error;
-        return this;
-    }
     public ModelDto(){}
 }

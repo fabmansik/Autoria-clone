@@ -44,5 +44,7 @@ public class ManagerModerationNotifier {
                 return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
         }
+        responseContainer.setSuccessResult("Manager was notified");
+        return responseContainer;
     }
 }

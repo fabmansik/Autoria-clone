@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.response.JwtResponse;
 import milansomyk.springboothw.dto.requests.RefreshRequest;
 import milansomyk.springboothw.dto.requests.SignInRequest;
+import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,14 @@ public class AuthController {
     @Autowired
     private final AuthService authService;
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> signIn(@RequestBody SignInRequest signInRequest){
-        return ResponseEntity.ok(authService.login(signInRequest));
+    public ResponseEntity<ResponseContainer> signIn(@RequestBody SignInRequest signInRequest){
+        ResponseContainer responseContainer = authService.login(signInRequest);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> refresh(@RequestBody RefreshRequest refreshRequest){
-        return ResponseEntity.ok(authService.refresh(refreshRequest));
+    public ResponseEntity<ResponseContainer> refresh(@RequestBody RefreshRequest refreshRequest){
+        ResponseContainer responseContainer = authService.refresh(refreshRequest);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
 }

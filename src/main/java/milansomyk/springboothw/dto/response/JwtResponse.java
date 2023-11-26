@@ -9,5 +9,4 @@ import lombok.RequiredArgsConstructor;
 public class JwtResponse {
     public final String token;
     public final String refresh;
-    public final String error;
 }

@@ -2,12 +2,10 @@ package milansomyk.springboothw.controllers;
 
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.dto.ModelDto;
 import milansomyk.springboothw.dto.ProducerDto;
 import milansomyk.springboothw.dto.UserDto;
 import milansomyk.springboothw.dto.response.ResponseContainer;
-import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.service.entityServices.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,37 +31,45 @@ public class AdminController {
     }
     @PostMapping("/producer")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<ProducerDto> addProducer(@RequestBody ProducerDto producerDto){
-        return ResponseEntity.ok(producerService.addProducer(producerDto));
+    public ResponseEntity<ResponseContainer> addProducer(@RequestBody ProducerDto producerDto){
+        ResponseContainer responseContainer = producerService.addProducer(producerDto);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PostMapping("/model/{id}")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<ModelDto> addModel(@RequestBody ModelDto model, @PathVariable Integer id){
-        return ResponseEntity.ok(modelService.addModel(id, model));
+    public ResponseEntity<ResponseContainer> addModel(@RequestBody ModelDto model, @PathVariable Integer id){
+        ResponseContainer responseContainer = modelService.addModel(id, model);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PostMapping("/currency")
     @RolesAllowed("ADMIN")
-    public String uploadCurrencies() throws IOException {
-        currencyService.uploadCurrencies();
-        return "Currency value Updated...";
+    public ResponseEntity<ResponseContainer> uploadCurrencies(){
+        ResponseContainer responseContainer = currencyService.uploadCurrencies();
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @GetMapping("/managers")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<List<UserDto>> getAllManagers(){
-        return ResponseEntity.ok(userService.getAllManagers());
+    public ResponseEntity<ResponseContainer> getAllManagers(){
+        ResponseContainer responseContainer = userService.getAllManagers();
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PutMapping("/managers/{id}")
     @RolesAllowed("ADMIN")
-    public UserDto setManagerById(@PathVariable int id){
-        return userService.setManager(id);
+    public ResponseEntity<ResponseContainer> setManagerById(@PathVariable int id){
+        ResponseContainer responseContainer = userService.getAllManagers();
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PutMapping("/premium/{id}")
     @RolesAllowed("ADMIN")
-    public String setPremiumById(@PathVariable int id){return userService.setPremium(id);}
+    public ResponseEntity<ResponseContainer> setPremiumById(@PathVariable int id){
+        ResponseContainer responseContainer = userService.setPremium(id);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+    }
     @DeleteMapping("/users/{id}")
     @RolesAllowed("ADMIN")
-    public String deleteUserById(@PathVariable int id){
-        return userService.deleteUserById(id);
+    public ResponseEntity<ResponseContainer> deleteUserById(@PathVariable int id){
+        ResponseContainer responseContainer = userService.deleteUserById(id);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @DeleteMapping("/images")
     @RolesAllowed("ADMIN")

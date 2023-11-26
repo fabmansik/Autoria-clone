@@ -8,7 +8,6 @@ import milansomyk.springboothw.dto.consts.Constants;
 import milansomyk.springboothw.dto.response.CarResponse;
 import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.dto.response.ResponseContainer;
-import milansomyk.springboothw.dto.response.UserResponse;
 import milansomyk.springboothw.entity.*;
 
 import milansomyk.springboothw.entity.Currency;
@@ -223,7 +222,7 @@ public class UserService {
                 log.info(sendMail.getErrorMessage());
                 return responseContainer.setErrorMessageAndStatusCode(sendMail.getErrorMessage(), sendMail.getStatusCode());
             }
-            return responseContainer;
+            return sendMail;
         }
         if (foundCar.getCheckCount() == 4) {
             log.info("your car publish is not active. Car sent on moderation. Wait for moderator gmail answer");
@@ -410,7 +409,7 @@ public class UserService {
             log.info(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        responseContainer.setResult(new UserResponse(userMapper.toResponseDto(saved), null));
+        responseContainer.setResult(userMapper.toResponseDto(saved));
         return responseContainer;
     }
 

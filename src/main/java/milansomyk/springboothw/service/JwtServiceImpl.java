@@ -25,7 +25,7 @@ public class JwtServiceImpl implements JwtService{
         key = Keys.hmacShaKeyFor(signingKey.getBytes());
     }
     @Override
-    public boolean isTokenExpired(String token) throws ExpiredJwtException {
+    public boolean isTokenExpired(String token) {
         return resolveClaim(token, Claims::getExpiration).before(new Date());
     }
 

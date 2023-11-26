@@ -111,21 +111,69 @@ public class CarService {
         return responseContainer;
     }
 
-    public CarResponse findById(int id) {
-        Car car = carRepository.findById(id).get();
+    public ResponseContainer findById(int id) {
+        ResponseContainer responseContainer = new ResponseContainer();
+        if(ObjectUtils.isEmpty(id)){
+            log.info("id is null");
+            return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
+        }
+        Car car;
+        try {
+            car = carRepository.findById(id).orElse(null);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(car)){
+            log.info("car with this id doesn't exists");
+            return responseContainer.setErrorMessageAndStatusCode("car with this id doesn't exists",HttpStatus.BAD_REQUEST.value());
+        }
         CarDto dto = carMapper.toDto(car);
-        return new CarResponse(dto);
+        responseContainer.setSuccessResult(new CarResponse(dto));
+        return responseContainer;
     }
 
-    public String deleteById(int id) {
-        Car car = carRepository.findById(id).get();
-        User user = userRepository.findByCarsContaining(car).orElse(null);
+    public ResponseContainer deleteById(int id) {
+        ResponseContainer responseContainer = new ResponseContainer();
+        Car car;
+        try {
+            car = carRepository.findById(id).orElse(null);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(car)){
+            log.info("car not found");
+            return responseContainer.setErrorMessageAndStatusCode("car not found",HttpStatus.BAD_REQUEST.value());
+        }
+        User user;
+        try {
+            user = userRepository.findByCarsContaining(car).orElse(null);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(user)){
+            log.info("user with this car not found");
+            return responseContainer.setErrorMessageAndStatusCode("user with this car not found",HttpStatus.NO_CONTENT.value());
+        }
         List<Car> cars = user.getCars();
         cars.remove(car);
         user.setCars(cars);
-        userRepository.save(user);
-        carRepository.deleteById(id);
-        return "Car with this id: " + id + ", was deleted";
+        try {
+            userRepository.save(user);
+        }catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        try {
+            carRepository.deleteById(id);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        responseContainer.setSuccessResult("Car with this id: " + id + ", was deleted");
+        return responseContainer;
     }
 
     public ResponseContainer getCars(String producer, String model, String region, Integer minPrice, Integer maxPrice, String ccy, String type) {
@@ -154,39 +202,39 @@ public class CarService {
         if (StringUtils.hasText(region)) {
             allCars.removeIf(car -> !Objects.equals(car.getRegion(), region));
         }
-        if (StringUtils.hasText(ccy)) {
-            if (!ObjectUtils.isEmpty(minPrice)) {
-                List<ResponseContainer> responseContainers = null;
-                allCars.removeIf(car -> {
-                    ResponseContainer responseContain = currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice(), responseContainer);
-                    responseContainers.add(responseContain);
-                    return (int) responseContain.getResult() <= minPrice;
-                });
-                ResponseContainer errorContainer = responseContainers.stream().filter(response -> response.isError()).findAny().orElse(null);
-                return errorContainer;
-            }
-            if (!ObjectUtils.isEmpty(maxPrice)) {
-//                allCars.removeIf(car -> currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice()) >= maxPrice);
-                List<ResponseContainer> responseContainers = null;
-                allCars.removeIf(car -> {
-                    ResponseContainer responseContain = currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice(), responseContainer);
-                    responseContainers.add(responseContain);
-                    return (int) responseContain.getResult() <= minPrice;
-                });
-            }
-        } else {
-            if (minPrice != null) {
-                allCars.removeIf(car -> currencyService.transferToCcy("USD", car.getCurrencyName(), car.getPrice()) <= minPrice);
-            }
-            if (maxPrice != null) {
-                allCars.removeIf(car -> currencyService.transferToCcy("USD", car.getCurrencyName(), car.getPrice()) >= maxPrice);
-            }
+        if(StringUtils.hasText(ccy)){
+        }else {
+            ccy = "USD";
         }
-        if (type != null){
+        if (!ObjectUtils.isEmpty(minPrice)) {
+            List<ResponseContainer> responseContainers = null;
+            String finalCcy = ccy;
+            allCars.removeIf(car -> {
+                ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
+                responseContainers.add(responseContain);
+                return (int) responseContain.getResult() <= minPrice;
+            });
+            ResponseContainer errorContainer = responseContainers.stream().filter(response -> response.isError()).findAny().orElse(null);
+            return errorContainer;
+        }
+        if (!ObjectUtils.isEmpty(maxPrice)) {
+            List<ResponseContainer> responseContainers = null;
+            String finalCcy = ccy;
+            allCars.removeIf(car -> {
+                ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
+                responseContainers.add(responseContain);
+                return (int) responseContain.getResult() >= maxPrice;
+            });
+            ResponseContainer errorContainer = responseContainers.stream().filter(response -> response.isError()).findAny().orElse(null);
+            return errorContainer;
+        }
+
+        if (StringUtils.hasText(type)){
             allCars.removeIf(car -> !Objects.equals(car.getType(),type));
         }
 
-        return new CarsResponse(allCars.stream().map(carMapper::toDto).toList()).setAmount(allCars.size());
+        responseContainer.setSuccessResult(new CarsResponse(allCars.stream().map(carMapper::toDto).toList()).setAmount(allCars.size()));
+        return responseContainer;
     }
 
     public ResponseContainer notifyNotFound(String model, String producer) {
@@ -254,7 +302,7 @@ public class CarService {
         try {
           car = this.carRepository.findById(id).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage())
+            log.info(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if (ObjectUtils.isEmpty(car)){

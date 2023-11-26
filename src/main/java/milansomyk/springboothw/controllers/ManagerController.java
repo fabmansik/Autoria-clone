@@ -2,15 +2,11 @@ package milansomyk.springboothw.controllers;
 
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
-import milansomyk.springboothw.dto.UserDto;
-import milansomyk.springboothw.dto.response.CarResponse;
-import milansomyk.springboothw.dto.response.UserResponse;
+import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.service.entityServices.CarService;
 import milansomyk.springboothw.service.entityServices.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,26 +18,33 @@ public class ManagerController {
 
     @GetMapping("/users")
     @RolesAllowed({"MANAGER","ADMIN"})
-    public ResponseEntity<List<UserDto>> getAllUsers(){
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<ResponseContainer> getAllUsers(){
+        ResponseContainer responseContainer = userService.getAllUsers();
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @GetMapping("/cars/{id}")
     @RolesAllowed({"MANAGER","ADMIN"})
-    public CarResponse getCarById(@PathVariable int id){
-        return carService.findById(id);
+    public ResponseEntity<ResponseContainer> getCarById(@PathVariable int id){
+        ResponseContainer responseContainer = carService.findById(id);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PutMapping("/users/ban/{id}")
     @RolesAllowed({"MANAGER", "ADMIN"})
-    public UserResponse banUser(@PathVariable int id){
-        return userService.banUser(id);
+    public ResponseEntity<ResponseContainer> banUser(@PathVariable int id){
+        ResponseContainer responseContainer = userService.banUser(id);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PutMapping("/users/unban/{id}")
     @RolesAllowed({"MANAGER","ADMIN"})
-    public UserResponse unBanUser(@PathVariable int id){return userService.unBanUser(id);}
+    public ResponseEntity<ResponseContainer> unBanUser(@PathVariable int id){
+        ResponseContainer responseContainer = userService.unBanUser(id);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+    }
     @DeleteMapping("/cars/{id}")
     @RolesAllowed({"MANAGER","ADMIN"})
-    public String deleteCarById(@PathVariable int id){
-        return carService.deleteById(id);
+    public ResponseEntity<ResponseContainer> deleteCarById(@PathVariable int id){
+        ResponseContainer responseContainer = carService.deleteById(id);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
 
 

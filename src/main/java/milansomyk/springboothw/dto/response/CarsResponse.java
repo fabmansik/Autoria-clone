@@ -23,17 +23,12 @@ public class CarsResponse {
     @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
     private Integer amount;
 
-    @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
-    private String error;
+
 
     public CarsResponse(List<CarDto> carsPremium) {
         this.carsPremium = carsPremium;
     }
 
-    public CarsResponse setError(String error) {
-        this.error = error;
-        return this;
-    }
     public CarsResponse setAmount(Integer amount){
         this.amount = amount;
         return this;
