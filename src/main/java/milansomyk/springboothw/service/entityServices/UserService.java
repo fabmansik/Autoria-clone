@@ -23,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -658,29 +660,54 @@ public class UserService {
         return responseContainer;
     }
 
-    public void isValidValues(String producer, String model, String region, String types) {
-        List<Producer> allProducers = producerRepository.findAll();
-        List<String> list = allProducers.stream().map(Producer::getName).toList();
-        if (producer == null) {
-        } else if (!list.contains(producer)) {
-            throw new IllegalArgumentException("Not legal producer");
+    public ResponseContainer isValidValues(String producer, String model, String region, String types, ResponseContainer responseContainer) {
+        List<Producer> allProducers;
+        try {
+            allProducers = producerRepository.findAll();
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        List<Model> allModels = modelRepository.findAll();
+        if(CollectionUtils.isEmpty(allProducers)){
+            log.info("cars not found any");
+            return responseContainer.setResultAndStatusCode("cars not found any",HttpStatus.NO_CONTENT.value());
+        }
+        List<String> list = allProducers.stream().map(Producer::getName).toList();
+        if (!StringUtils.hasText(producer)) {
+        } else if (!list.contains(producer)) {
+            log.info("not legal producer");
+            return responseContainer.setErrorMessageAndStatusCode("not legal producer",HttpStatus.BAD_REQUEST.value());
+        }
+        List<Model> allModels;
+        try {
+            allModels = modelRepository.findAll();
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(CollectionUtils.isEmpty(allModels)){
+            log.info("models not found any");
+            return responseContainer.setResultAndStatusCode("models not found any",HttpStatus.NO_CONTENT.value());
+        }
         List<String> modelNames = allModels.stream().map(Model::getName).toList();
-        if (model == null) {
+        if (!StringUtils.hasText(model)) {
         } else if (!modelNames.contains(model)) {
-            throw new IllegalArgumentException("Not legal model");
+            log.info("not legal model");
+            return responseContainer.setErrorMessageAndStatusCode("not legal model",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allRegions = Arrays.stream(constants.getRegions()).toList();
-        if (region == null) {
+        if (!StringUtils.hasText(region)) {
         } else if (!allRegions.contains(region)) {
-            throw new IllegalArgumentException("Not legal region");
+            log.info("not legal region");
+            return responseContainer.setErrorMessageAndStatusCode("not legal region",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allTypes = Arrays.stream(constants.getTypes()).toList();
-        if (types == null) {
+        if (!StringUtils.hasText(types)) {
         } else if (!allTypes.contains(types)) {
-            throw new IllegalArgumentException("Not legal type");
+            log.info("not legal type");
+            return responseContainer.setErrorMessageAndStatusCode("not legal type",HttpStatus.BAD_REQUEST.value());
         }
+        return responseContainer;
     }
 }
 

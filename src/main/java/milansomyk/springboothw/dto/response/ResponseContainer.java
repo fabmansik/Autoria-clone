@@ -22,6 +22,11 @@ public class ResponseContainer {
         this.statusCode = statusCode;
         return this;
     }
+    public ResponseContainer setResultAndStatusCode(Object result, int statusCode){
+        this.result = result;
+        this.statusCode = statusCode;
+        return this;
+    }
 
     public void setErrorMessage(String errorMessage) {
         this.isError = true;

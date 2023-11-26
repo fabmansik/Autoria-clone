@@ -33,18 +33,20 @@ public class BuyerController {
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PostMapping("/views/{id}")
-    public String addView(@PathVariable int id){
-        carService.addWatchesTotal(id);
-        return "Car with id: "+id+" watched";
+    public ResponseEntity<ResponseContainer> addView(@PathVariable int id){
+        ResponseContainer responseContainer = carService.addWatchesTotal(id);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+
     }
     @PostMapping("/search/notify-not-found")
-    public String notifyNotFound(@RequestParam(required = false) String model, @RequestParam(required = false) String producer){
-        return carService.notifyNotFound( model, producer);
+    public ResponseEntity<ResponseContainer> notifyNotFound(@RequestParam(required = false) String model, @RequestParam(required = false) String producer){
+        ResponseContainer responseContainer = carService.notifyNotFound(model, producer);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
 
     @JsonView(Views.LevelBuyer.class)
     @GetMapping("/search")
-    public ResponseEntity<CarsResponse> search(
+    public ResponseEntity<ResponseContainer> search(
             @RequestParam(required = false) String producer, @RequestParam(required = false) String model,
             @RequestParam(required = false) String region, @RequestParam(required = false) Integer minPrice,
             @RequestParam(required = false) Integer maxPrice, @RequestParam(required = false) String ccy,
@@ -53,19 +55,19 @@ public class BuyerController {
         return ResponseEntity.ok(carService.getCars(producer, model, region, minPrice, maxPrice, ccy, type));
     }
     @GetMapping("/search/producers")
-    public ResponseEntity<List<ProducerDto>> getAllProducers(){
+    public ResponseEntity<ResponseContainer> getAllProducers(){
         return ResponseEntity.ok(producerService.findAllProducers());
     }
     @GetMapping("/search/models/{id}")
-    public ResponseEntity<List<ModelDto>> getAllModels(@PathVariable Integer id){
+    public ResponseEntity<ResponseContainer> getAllModels(@PathVariable Integer id){
         return ResponseEntity.ok(modelService.findAllModels(id));
     }
     @GetMapping("/search/types")
-    public ResponseEntity<String[]> getAllTypes(){
+    public ResponseEntity<ResponseContainer> getAllTypes(){
         return ResponseEntity.ok(constants.getTypes());
     }
     @GetMapping("/search/regions")
-    public ResponseEntity<String[]> getAllRegions(){
+    public ResponseEntity<ResponseContainer> getAllRegions(){
         return ResponseEntity.ok(constants.getRegions());
     }
 }

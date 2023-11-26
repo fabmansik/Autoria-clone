@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CarRepository extends JpaRepository<Car, Integer> {
@@ -17,7 +18,7 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
     @Modifying
     @Transactional
     @Query(nativeQuery = true, value = "SELECT * FROM cars WHERE cars.active = true")
-    List<Car> findAllActive();
+    Optional<List<Car>> findAllActive();
 
     @Modifying
     @Transactional

@@ -16,6 +16,7 @@ import milansomyk.springboothw.service.mails.AdminNotFoundNotifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,10 +83,32 @@ public class CarService {
         return responseContainer;
     }
 
-    public void addWatchesTotal(int id) {
-        Car car = carRepository.findById(id).get();
+    public ResponseContainer addWatchesTotal(int id) {
+        ResponseContainer responseContainer = new ResponseContainer();
+        if(ObjectUtils.isEmpty(id)){
+            log.info("id is null");
+            return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
+        }
+        Car car;
+        try {
+            car = carRepository.findById(id).orElse(null);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(car)){
+            log.info("car not found");
+            return responseContainer.setErrorMessageAndStatusCode("car not found",HttpStatus.BAD_REQUEST.value());
+        }
         car.addWatches();
-        carRepository.save(car);
+        try {
+            carRepository.save(car);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        responseContainer.setSuccessResult("Car with id: "+id+" watched");
+        return responseContainer;
     }
 
     public CarResponse findById(int id) {
@@ -105,28 +128,51 @@ public class CarService {
         return "Car with this id: " + id + ", was deleted";
     }
 
-    public CarsResponse getCars(String producer, String model, String region, Integer minPrice, Integer maxPrice, String ccy, String type) {
-        List<Car> allCars = carRepository.findAllActive();
-        try{
-            userService.isValidValues(producer, model, region, type);
-        }catch (IllegalArgumentException e){
-            return new CarsResponse().setError(e.getMessage());
+    public ResponseContainer getCars(String producer, String model, String region, Integer minPrice, Integer maxPrice, String ccy, String type) {
+        ResponseContainer responseContainer = new ResponseContainer();
+        List<Car> allCars;
+        try {
+            allCars = carRepository.findAllActive().orElse(null);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        if (producer != null) {
+        if(CollectionUtils.isEmpty(allCars)){
+            log.info("cars not found");
+            return responseContainer.setResultAndStatusCode("cars not found", HttpStatus.NO_CONTENT.value());
+        }
+        ResponseContainer validValues = userService.isValidValues(producer, model, region, type, responseContainer);
+        if(validValues.isError()){
+            return validValues;
+        }
+        if (StringUtils.hasText(producer)) {
             allCars.removeIf(car -> !Objects.equals(car.getProducer(), producer));
         }
-        if (model != null) {
+        if (StringUtils.hasText(model)) {
             allCars.removeIf(car -> !Objects.equals(car.getModel(), model));
         }
-        if (region != null) {
+        if (StringUtils.hasText(region)) {
             allCars.removeIf(car -> !Objects.equals(car.getRegion(), region));
         }
-        if (ccy != null) {
-            if (minPrice != null) {
-                allCars.removeIf(car -> currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice()) <= minPrice);
+        if (StringUtils.hasText(ccy)) {
+            if (!ObjectUtils.isEmpty(minPrice)) {
+                List<ResponseContainer> responseContainers = null;
+                allCars.removeIf(car -> {
+                    ResponseContainer responseContain = currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice(), responseContainer);
+                    responseContainers.add(responseContain);
+                    return (int) responseContain.getResult() <= minPrice;
+                });
+                ResponseContainer errorContainer = responseContainers.stream().filter(response -> response.isError()).findAny().orElse(null);
+                return errorContainer;
             }
-            if (maxPrice != null) {
-                allCars.removeIf(car -> currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice()) >= maxPrice);
+            if (!ObjectUtils.isEmpty(maxPrice)) {
+//                allCars.removeIf(car -> currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice()) >= maxPrice);
+                List<ResponseContainer> responseContainers = null;
+                allCars.removeIf(car -> {
+                    ResponseContainer responseContain = currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice(), responseContainer);
+                    responseContainers.add(responseContain);
+                    return (int) responseContain.getResult() <= minPrice;
+                });
             }
         } else {
             if (minPrice != null) {
@@ -143,22 +189,38 @@ public class CarService {
         return new CarsResponse(allCars.stream().map(carMapper::toDto).toList()).setAmount(allCars.size());
     }
 
-    public String notifyNotFound(String model, String producer) {
-        if (model != null) {
-            if (modelRepository.findByName(model) != null) {
-                return "Model already exists";
+    public ResponseContainer notifyNotFound(String model, String producer) {
+        ResponseContainer responseContainer = new ResponseContainer();
+        if (StringUtils.hasText(model)) {
+            Model foundModel;
+            try {
+                foundModel = modelRepository.findByName(model).orElse(null);
+            } catch (Exception e){
+                log.info(e.getMessage());
+                return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
-            adminNotFoundNotifier.sendMail("Model", model);
-            return "Admin was notified about missing model: " + model;
+            if(!ObjectUtils.isEmpty(foundModel)){
+                return responseContainer.setErrorMessageAndStatusCode("Model already exists",HttpStatus.BAD_REQUEST.value());
+            }
+            ResponseContainer adminNotFoundContainer = adminNotFoundNotifier.sendMail("Model", model, responseContainer);
+            return adminNotFoundContainer;
         }
         if (producer != null) {
-            if (producerRepository.findProducerByName(producer) != null) {
-                return "Producer already exists";
+            Producer foundproducer;
+            try {
+                foundproducer = producerRepository.findProducerByName(producer).orElse(null);
+            } catch (Exception e){
+                log.info(e.getMessage());
+                return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
-            adminNotFoundNotifier.sendMail("Producer", producer);
-            return "Admin was notified about missing producer: " + producer;
+            if(!ObjectUtils.isEmpty(foundproducer)){
+                return responseContainer.setErrorMessageAndStatusCode("Producer already exists", HttpStatus.BAD_REQUEST.value());
+            }
+            ResponseContainer adminNotFoundNotifier = this.adminNotFoundNotifier.sendMail("Producer", producer, responseContainer);
+            return adminNotFoundNotifier;
         }
-        return "No arguments";
+        responseContainer.setErrorMessageAndStatusCode("No arguments",HttpStatus.BAD_REQUEST.value());
+        return responseContainer;
     }
 
     public ResponseContainer addImage(int id, MultipartFile file, String username){
