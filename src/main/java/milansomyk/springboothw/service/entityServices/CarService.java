@@ -14,7 +14,6 @@ import milansomyk.springboothw.repository.*;
 import milansomyk.springboothw.service.JwtService;
 import milansomyk.springboothw.service.mails.AdminNotFoundNotifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -22,7 +21,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -45,7 +43,11 @@ public class CarService {
 
     public ResponseContainer findAveragePrice(String producer, String model, String ccy, String region, String username) {
         ResponseContainer responseContainer = new ResponseContainer();
-        if (!userService.isPremiumAccount(username)) {
+        ResponseContainer premiumAccount = userService.isPremiumAccount(username);
+        if(premiumAccount.isError()){
+            return premiumAccount;
+        }
+        if ((boolean) premiumAccount.getResult()) {
             log.info("not premium account");
             return responseContainer.setErrorMessageAndStatusCode("not premium account", HttpStatus.FORBIDDEN.value());
         }
@@ -202,8 +204,7 @@ public class CarService {
         if (StringUtils.hasText(region)) {
             allCars.removeIf(car -> !Objects.equals(car.getRegion(), region));
         }
-        if(StringUtils.hasText(ccy)){
-        }else {
+        if(!StringUtils.hasText(ccy)){
             ccy = "USD";
         }
         if (!ObjectUtils.isEmpty(minPrice)) {
@@ -214,8 +215,7 @@ public class CarService {
                 responseContainers.add(responseContain);
                 return (int) responseContain.getResult() <= minPrice;
             });
-            ResponseContainer errorContainer = responseContainers.stream().filter(response -> response.isError()).findAny().orElse(null);
-            return errorContainer;
+            return responseContainers.stream().filter(ResponseContainer::isError).findAny().orElse(null);
         }
         if (!ObjectUtils.isEmpty(maxPrice)) {
             List<ResponseContainer> responseContainers = null;
@@ -225,8 +225,7 @@ public class CarService {
                 responseContainers.add(responseContain);
                 return (int) responseContain.getResult() >= maxPrice;
             });
-            ResponseContainer errorContainer = responseContainers.stream().filter(response -> response.isError()).findAny().orElse(null);
-            return errorContainer;
+            return responseContainers.stream().filter(ResponseContainer::isError).findAny().orElse(null);
         }
 
         if (StringUtils.hasText(type)){
@@ -250,8 +249,7 @@ public class CarService {
             if(!ObjectUtils.isEmpty(foundModel)){
                 return responseContainer.setErrorMessageAndStatusCode("Model already exists",HttpStatus.BAD_REQUEST.value());
             }
-            ResponseContainer adminNotFoundContainer = adminNotFoundNotifier.sendMail("Model", model, responseContainer);
-            return adminNotFoundContainer;
+            return adminNotFoundNotifier.sendMail("Model", model, responseContainer);
         }
         if (producer != null) {
             Producer foundproducer;
@@ -264,8 +262,7 @@ public class CarService {
             if(!ObjectUtils.isEmpty(foundproducer)){
                 return responseContainer.setErrorMessageAndStatusCode("Producer already exists", HttpStatus.BAD_REQUEST.value());
             }
-            ResponseContainer adminNotFoundNotifier = this.adminNotFoundNotifier.sendMail("Producer", producer, responseContainer);
-            return adminNotFoundNotifier;
+            return this.adminNotFoundNotifier.sendMail("Producer", producer, responseContainer);
         }
         responseContainer.setErrorMessageAndStatusCode("No arguments",HttpStatus.BAD_REQUEST.value());
         return responseContainer;
@@ -289,8 +286,7 @@ public class CarService {
         if(personalCarAndIndex.isError()){
             return personalCarAndIndex;
         }
-
-        String extension = file.getOriginalFilename().split("\\.")[1];
+        String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
         String[] extensions = constants.getExtensions();
         List<String> list = Arrays.stream(extensions).toList();
         if (!list.contains(extension)) {
@@ -334,13 +330,16 @@ public class CarService {
             log.info(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        if(userService.isPremiumAccount(username)){
+        ResponseContainer premiumAccount = userService.isPremiumAccount(username);
+        if (premiumAccount.isError()){
+            return premiumAccount;
+        }
+        if((boolean) premiumAccount.getResult()){
             responseContainer.setSuccessResult(new CarResponse(this.carMapper.toDto(savedCar)));
-            return responseContainer;
         }else{
             responseContainer.setSuccessResult(new CarResponse().setCarBasic(this.carMapper.toBasicDto(savedCar)));
-            return responseContainer;
         }
+        return responseContainer;
 
     }
     public ResponseContainer deleteImage(Integer id, String filename, String username){

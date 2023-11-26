@@ -132,9 +132,8 @@ public class Car {
         }
 
     }
-    public Integer addCheckCount(){
+    public void addCheckCount(){
         this.checkCount++;
-        return checkCount;
     }
     public void addWatches(){
         this.watchesTotal++;

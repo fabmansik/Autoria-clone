@@ -19,6 +19,11 @@ spring:
             auth: true
             starttls:
               enable: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
 
 jwt:
   signingKey: super_long_secret_key_that_nobody_knows

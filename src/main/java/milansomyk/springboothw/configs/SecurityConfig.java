@@ -1,5 +1,6 @@
 package milansomyk.springboothw.configs;
 
+import milansomyk.springboothw.security.CustomAuthorizationEntryPoint;
 import milansomyk.springboothw.security.JwtAuthenticationFilter;
 import milansomyk.springboothw.service.DbUserDetailsService;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 public class SecurityConfig {
     @Bean
+    public CustomAuthorizationEntryPoint customAuthorizationEntryPoint(){
+        return new CustomAuthorizationEntryPoint();
+    }
+    @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
@@ -46,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/login/**","/register/**","/refresh/**","/search/**","/views/**","/currency/**",
                                 "/get-producers/**","/get-models/**","/adImages/**").permitAll()
                         .anyRequest().authenticated())
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(customAuthorizationEntryPoint()))
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

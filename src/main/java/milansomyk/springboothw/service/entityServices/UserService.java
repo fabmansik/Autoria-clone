@@ -23,6 +23,7 @@ import org.springframework.mail.MailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -86,7 +87,7 @@ public class UserService {
         Car car = carMapper.toCar(carDto);
         ResponseContainer responseContainer = new ResponseContainer();
         CarResponse carResponse = new CarResponse();
-        User user = new User();
+        User user;
         try {
             user = userRepository.findByUsername(username).orElse(null);
         } catch (Exception e){
@@ -503,12 +504,13 @@ public class UserService {
         }
         User user;
         try{
-            user = userRepository.findById(id).get();
+            user = userRepository.findById(id).orElse(null);
         }catch (Exception e){
             log.info(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(user == null){
+            log.info("user not found");
             return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
         user.setPremium(true);
@@ -555,7 +557,7 @@ public class UserService {
         return responseContainer;
     }
     public ResponseContainer isUsernameAlreadyExists(String username, ResponseContainer responseContainer) {
-        User user = new User();
+        User user;
         try {
             user = userRepository.findByUsername(username).orElse(null);
         } catch (Exception e) {
@@ -567,7 +569,7 @@ public class UserService {
         return responseContainer;
     }
     public ResponseContainer isEmailAlreadyExists(String email, ResponseContainer responseContainer) {
-        User user = new User();
+        User user;
         try{
             user = userRepository.findByEmail(email).orElse(null);
         } catch (Exception e) {
@@ -580,7 +582,7 @@ public class UserService {
 
     }
     public ResponseContainer isPhoneNumberAlreadyUsed(Integer phone, ResponseContainer responseContainer) {
-        User user = new User();
+        User user;
         try{
             user = userRepository.findByPhone(phone).orElse(null);
         } catch (Exception e) {
@@ -614,22 +616,25 @@ public class UserService {
         return false;
     }
 
-    public boolean isPremiumAccount(String username) {
-        User user = new User();
+    public ResponseContainer isPremiumAccount(String username) {
+        ResponseContainer responseContainer = new ResponseContainer();
+        User user;
         try{
             user = userRepository.findByUsername(username).orElse(null);
         }catch (Exception e){
-            throw e;
+            log.info(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
-        if (user != null) {
-            return user.getPremium();
+        if (ObjectUtils.isEmpty(user)) {
+            return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
-        return false;
+        responseContainer.setSuccessResult(user.getPremium());
+        return responseContainer;
     }
 
     public ResponseContainer isValidValues(Car car, ResponseContainer responseContainer) {
-        List<Producer> producers = new ArrayList<>();
+        List<Producer> producers;
         try {
             producers = producerRepository.findAll();
         } catch (Exception e){
@@ -637,23 +642,18 @@ public class UserService {
         }
         Map<String, List<Model>> producersAndModels = producers.stream().collect(toMap(Producer::getName, Producer::getModels));
         log.info(producersAndModels.toString());
-        if (car.getProducer() == null) {
-        } else if (!producersAndModels.containsKey(car.getProducer())) {
+        if (car.getProducer()!= null &&(!producersAndModels.containsKey(car.getProducer()))) {
             return responseContainer.setErrorMessageAndStatusCode("Not legal producer",HttpStatus.BAD_REQUEST.value());
         }
-
-        if (car.getModel() == null) {
-        } else if (!producersAndModels.containsValue(car.getModel())) {
+        if (car.getModel()!= null &&(!producersAndModels.containsValue(car.getModel()))) {
             return responseContainer.setErrorMessageAndStatusCode("Not legal model",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allRegions = Arrays.stream(constants.getRegions()).toList();
-        if (car.getRegion() == null) {
-        } else if (!allRegions.contains(car.getRegion())) {
+        if (car.getRegion()!=null &&(!allRegions.contains(car.getRegion()))) {
             return responseContainer.setErrorMessageAndStatusCode("Not legal region",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allTypes = Arrays.stream(constants.getTypes()).toList();
-        if (car.getType() == null) {
-        } else if (!allTypes.contains(car.getType())) {
+        if (car.getType()!= null &&(!allTypes.contains(car.getType()))) {
             return responseContainer.setErrorMessageAndStatusCode("Not legal type",HttpStatus.BAD_REQUEST.value());
         }
         return responseContainer;
@@ -672,8 +672,7 @@ public class UserService {
             return responseContainer.setResultAndStatusCode("cars not found any",HttpStatus.NO_CONTENT.value());
         }
         List<String> list = allProducers.stream().map(Producer::getName).toList();
-        if (!StringUtils.hasText(producer)) {
-        } else if (!list.contains(producer)) {
+        if (StringUtils.hasText(producer) && (!list.contains(producer))) {
             log.info("not legal producer");
             return responseContainer.setErrorMessageAndStatusCode("not legal producer",HttpStatus.BAD_REQUEST.value());
         }
@@ -689,20 +688,17 @@ public class UserService {
             return responseContainer.setResultAndStatusCode("models not found any",HttpStatus.NO_CONTENT.value());
         }
         List<String> modelNames = allModels.stream().map(Model::getName).toList();
-        if (!StringUtils.hasText(model)) {
-        } else if (!modelNames.contains(model)) {
+        if (StringUtils.hasText(model) && (!modelNames.contains(model))) {
             log.info("not legal model");
             return responseContainer.setErrorMessageAndStatusCode("not legal model",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allRegions = Arrays.stream(constants.getRegions()).toList();
-        if (!StringUtils.hasText(region)) {
-        } else if (!allRegions.contains(region)) {
+        if (StringUtils.hasText(region) && (!allRegions.contains(region))) {
             log.info("not legal region");
             return responseContainer.setErrorMessageAndStatusCode("not legal region",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allTypes = Arrays.stream(constants.getTypes()).toList();
-        if (!StringUtils.hasText(types)) {
-        } else if (!allTypes.contains(types)) {
+        if (StringUtils.hasText(types) && (!allTypes.contains(types))) {
             log.info("not legal type");
             return responseContainer.setErrorMessageAndStatusCode("not legal type",HttpStatus.BAD_REQUEST.value());
         }

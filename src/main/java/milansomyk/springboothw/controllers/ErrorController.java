@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,4 +42,13 @@ public class ErrorController {
                         .messages(Arrays.asList(e.getMessage()))
                         .build());
     }
+    @ExceptionHandler(value = NoHandlerFoundException.class)
+    public ResponseEntity<ErrorDto> exception(NoHandlerFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ErrorDto.builder()
+                        .messages(Arrays.asList(e.getMessage()))
+                        .build());
+    }
+
 }

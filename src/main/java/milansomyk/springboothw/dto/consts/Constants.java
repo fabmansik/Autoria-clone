@@ -3,8 +3,6 @@ package milansomyk.springboothw.dto.consts;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
-import java.net.URL;
-
 @Data
 @Component
 public class Constants {

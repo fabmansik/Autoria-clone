@@ -15,10 +15,4 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByCarsContaining(Car car);
     Optional<User> findByPhone(Integer phone);
     Optional<List<User>> findByRole(String role);
-//    @Modifying
-//    @Transactional
-//    @Query(value ="update User u set u.cars = :cars where u.id = :id")
-////    @Query(nativeQuery = true, value = "INSERT INTO User.cars ()")
-//    void updateUserById(@Param("id")Integer id,@Param("cars") List<Car> cars);
-
 }

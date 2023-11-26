@@ -12,6 +12,7 @@ import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,7 @@ public class JwtServiceImpl implements JwtService{
 
     @Override
     public boolean isRefreshType(String token) {
-        return resolveClaim(token, claims -> claims.get("type", String.class) == ("refresh"));
+        return resolveClaim(token, claims -> Objects.equals(claims.get("type", String.class), "refresh"));
     }
 
     @Override

@@ -1,13 +1,13 @@
 package milansomyk.springboothw.controllers;
 
 import lombok.RequiredArgsConstructor;
-import milansomyk.springboothw.dto.response.CurrencyResponse;
 import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.service.entityServices.CurrencyService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

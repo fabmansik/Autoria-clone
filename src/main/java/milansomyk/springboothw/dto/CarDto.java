@@ -14,6 +14,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class CarDto {
     @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
     private Integer id;
@@ -107,7 +108,4 @@ public class CarDto {
 
     @JsonView({Views.LevelSeller.class,Views.LevelBuyer.class,Views.LevelManagerAdmin.class})
     private List<Image> images;
-    public CarDto(){
-
-    }
 }

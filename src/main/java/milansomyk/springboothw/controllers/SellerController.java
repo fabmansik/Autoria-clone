@@ -1,24 +1,18 @@
 package milansomyk.springboothw.controllers;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import io.jsonwebtoken.JwtException;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import milansomyk.springboothw.dto.CarDto;
-import milansomyk.springboothw.dto.response.AverageResponse;
-import milansomyk.springboothw.dto.response.CarResponse;
-import milansomyk.springboothw.dto.response.CarsResponse;
 import milansomyk.springboothw.dto.response.ResponseContainer;
-import milansomyk.springboothw.service.entityServices.CarService;
 import milansomyk.springboothw.service.JwtService;
+import milansomyk.springboothw.service.entityServices.CarService;
 import milansomyk.springboothw.service.entityServices.UserService;
 import milansomyk.springboothw.view.Views;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,7 +59,7 @@ public class SellerController {
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @PutMapping("/img")
-    public ResponseEntity<ResponseContainer> addImage(@RequestParam Integer id,  @RequestParam MultipartFile image, @RequestHeader("Authorization") String auth) throws IOException {
+    public ResponseEntity<ResponseContainer> addImage(@RequestParam Integer id,  @RequestParam MultipartFile image, @RequestHeader("Authorization") String auth){
         String username=extractUsernameFromAuth(auth);
         ResponseContainer responseContainer = carService.addImage(id, image, username);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);

@@ -10,9 +10,6 @@ import milansomyk.springboothw.service.entityServices.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin")
@@ -56,7 +53,7 @@ public class AdminController {
     @PutMapping("/managers/{id}")
     @RolesAllowed("ADMIN")
     public ResponseEntity<ResponseContainer> setManagerById(@PathVariable int id){
-        ResponseContainer responseContainer = userService.getAllManagers();
+        ResponseContainer responseContainer = userService.setManager(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PutMapping("/premium/{id}")
@@ -73,5 +70,8 @@ public class AdminController {
     }
     @DeleteMapping("/images")
     @RolesAllowed("ADMIN")
-    public String deleteImageById(@RequestParam Integer carId, @RequestParam Integer imageId){return imageService.deleteImage(imageId, carId);}
+    public ResponseEntity<ResponseContainer> deleteImageById(@RequestParam Integer carId, @RequestParam Integer imageId){
+        ResponseContainer responseContainer = imageService.deleteImage(imageId, carId);
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+    }
 }

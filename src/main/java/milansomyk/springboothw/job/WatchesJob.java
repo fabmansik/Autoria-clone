@@ -13,18 +13,30 @@ public class WatchesJob {
     private final CarRepository carRepository;
     @Scheduled(cron = "@daily")
     public void process(){
-        carRepository.nullCarWatchesPerDay();
+        try {
+            carRepository.nullCarWatchesPerDay();
+        } catch (Exception e){
+            log.info(e.getMessage());
+        }
         log.info("Watches per day are null");
     }
     @Scheduled(cron="@weekly")
     public void processPerWeek(){
-        carRepository.nullCarWatchesPerWeek();
+        try {
+            carRepository.nullCarWatchesPerWeek();
+        } catch (Exception e){
+            log.info(e.getMessage());
+        }
         log.info("Watches per week are null");
     }
 
     @Scheduled(cron="@monthly")
     public void processPerMonth(){
-        carRepository.nullCarWatchesPerMonth();
+        try {
+            carRepository.nullCarWatchesPerMonth();
+        } catch (Exception e){
+            log.info(e.getMessage());
+        }
         log.info("Watches per month are null");
     }
 

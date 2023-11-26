@@ -11,7 +11,6 @@ import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.mapper.UserMapper;
 import milansomyk.springboothw.repository.UserRepository;
 import milansomyk.springboothw.service.entityServices.UserService;
-import org.apache.tomcat.util.http.parser.HttpParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -110,7 +109,7 @@ public class AuthService {
             log.info("username is null");
             return responseContainer.setErrorMessageAndStatusCode("username is null",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        UserDetails userDetails = null;
+        UserDetails userDetails;
         try {
             userDetails = userDetailsService.loadUserByUsername(username);
         } catch (Exception e){

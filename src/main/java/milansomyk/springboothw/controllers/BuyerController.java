@@ -2,7 +2,7 @@ package milansomyk.springboothw.controllers;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
-import milansomyk.springboothw.dto.*;
+import milansomyk.springboothw.dto.UserDto;
 import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.service.ConstantsService;
 import milansomyk.springboothw.service.entityServices.CarService;
@@ -12,8 +12,6 @@ import milansomyk.springboothw.service.entityServices.UserService;
 import milansomyk.springboothw.view.Views;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

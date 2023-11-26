@@ -8,14 +8,12 @@ import milansomyk.springboothw.dto.consts.Constants;
 import milansomyk.springboothw.dto.response.CurrencyResponse;
 import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.entity.Currency;
-import milansomyk.springboothw.mapper.CurrencyMapper;
 import milansomyk.springboothw.repository.CurrencyRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -27,7 +25,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CurrencyService {
     private final CurrencyRepository currencyRepository;
-    private final CurrencyMapper currencyMapper;
     private final ObjectMapper objectMapper;
     private final Constants constants;
     public ResponseContainer transferToAllCurrencies(String ccy, String value){
@@ -57,7 +54,7 @@ public class CurrencyService {
         String sale = foundByCcy.getSale();
         Map<String, String> collect = all.stream().collect(Collectors.toMap(Currency::getCcy, Currency::getSale));
         List<CurrencyResponse> list = new java.util.ArrayList<>(collect.entrySet().stream().map(e -> {
-            Double i = (Double.parseDouble(sale) / Double.parseDouble(e.getValue())  * Double.parseDouble(value));
+            double i = (Double.parseDouble(sale) / Double.parseDouble(e.getValue())  * Double.parseDouble(value));
             return new CurrencyResponse(e.getKey(), Double.toString(i));
         }).toList());
         list.removeIf(e->e.getCurrencyName().equals(ccy));
@@ -65,7 +62,7 @@ public class CurrencyService {
         return responseContainer;
     }
     public ResponseContainer validCurrencyName(String currencyName, ResponseContainer responseContainer){
-        List<Currency> all = new ArrayList<>();
+        List<Currency> all;
         try{
              all = currencyRepository.findAll();
         }catch (Exception e){
