@@ -32,10 +32,10 @@ public class AdminController {
         ResponseContainer responseContainer = producerService.addProducer(producerDto);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @PostMapping("/model/{id}")
+    @PostMapping("/model")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<ResponseContainer> addModel(@RequestBody ModelDto model, @PathVariable Integer id){
-        ResponseContainer responseContainer = modelService.addModel(id, model);
+    public ResponseEntity<ResponseContainer> addModel(@RequestBody ModelDto model, @RequestParam Integer producerId){
+        ResponseContainer responseContainer = modelService.addModel(producerId, model);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @PostMapping("/currency")
@@ -50,21 +50,21 @@ public class AdminController {
         ResponseContainer responseContainer = userService.getAllManagers();
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @PutMapping("/managers/{id}")
+    @PutMapping("/managers")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<ResponseContainer> setManagerById(@PathVariable int id){
+    public ResponseEntity<ResponseContainer> setManagerById(@RequestParam int id){
         ResponseContainer responseContainer = userService.setManager(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @PutMapping("/premium/{id}")
+    @PutMapping("/premium")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<ResponseContainer> setPremiumById(@PathVariable int id){
+    public ResponseEntity<ResponseContainer> setPremiumById(@RequestParam int id){
         ResponseContainer responseContainer = userService.setPremium(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/users")
     @RolesAllowed("ADMIN")
-    public ResponseEntity<ResponseContainer> deleteUserById(@PathVariable int id){
+    public ResponseEntity<ResponseContainer> deleteUserById(@RequestParam int id){
         ResponseContainer responseContainer = userService.deleteUserById(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }

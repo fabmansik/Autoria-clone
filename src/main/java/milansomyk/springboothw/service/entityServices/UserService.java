@@ -55,23 +55,39 @@ public class UserService {
     public ResponseContainer register(UserDto userDto) {
         User user = userMapper.fromDto(userDto);
         ResponseContainer responseContainer = new ResponseContainer();
-        if(user.getUsername()==null || user.getEmail()!=null || user.getPhone()!=null){
-            log.error("ERROR: User is empty");
-            return responseContainer.setErrorMessageAndStatusCode("User is empty",HttpStatus.BAD_REQUEST.value());
+        if(ObjectUtils.isEmpty(userDto)){
+            log.error("user is null");
+            return responseContainer.setErrorMessageAndStatusCode("user is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(!StringUtils.hasText(user.getUsername())){
+            log.error("username is null");
+            return responseContainer.setErrorMessageAndStatusCode("username is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(!StringUtils.hasText(user.getPassword())){
+            log.error("password is null");
+            return responseContainer.setErrorMessageAndStatusCode("password is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(!StringUtils.hasText(user.getEmail())){
+            log.error("email is null");
+            return responseContainer.setErrorMessageAndStatusCode("email is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(ObjectUtils.isEmpty(user.getPhone())){
+            log.error("phone is null");
+            return responseContainer.setErrorMessageAndStatusCode("phone is null",HttpStatus.BAD_REQUEST.value());
         }
         ResponseContainer usernameAlreadyExistsResponseContainer = isUsernameAlreadyExists(user.getUsername(), responseContainer);
         if (usernameAlreadyExistsResponseContainer.isError()) {
-            log.error("ERROR:"+usernameAlreadyExistsResponseContainer.getErrorMessage());
+            log.error(usernameAlreadyExistsResponseContainer.getErrorMessage());
             return usernameAlreadyExistsResponseContainer;
         }
         ResponseContainer emailAlreadyExists = isEmailAlreadyExists(user.getEmail(), responseContainer);
         if (emailAlreadyExists.isError()){
-            log.error("ERROR:"+emailAlreadyExists.getErrorMessage());
+            log.error(emailAlreadyExists.getErrorMessage());
             return emailAlreadyExists;
         }
         ResponseContainer phoneNumberAlreadyUsed = isPhoneNumberAlreadyUsed(user.getPhone(), responseContainer);
         if (phoneNumberAlreadyUsed.isError()){
-            log.error("ERROR:"+phoneNumberAlreadyUsed.getErrorMessage());
+            log.error(phoneNumberAlreadyUsed.getErrorMessage());
             return phoneNumberAlreadyUsed;
         }
 
@@ -101,19 +117,19 @@ public class UserService {
         if (user != null) {
             ResponseContainer validValues = isValidValues(car, responseContainer);
             if(validValues.isError()){
-                log.error("ERROR: "+validValues.getErrorMessage());
+                log.error(validValues.getErrorMessage());
                 return validValues;
             }
 
             ResponseContainer carLimit = carLimit(user,responseContainer);
             if(carLimit.isError()){
-                log.error("ERROR: "+carLimit.getErrorMessage());
+                log.error(carLimit.getErrorMessage());
                 return carLimit;
             }
 
             ResponseContainer validCurrencyName = currencyService.validCurrencyName(car.getCurrencyName(), responseContainer);
             if(validCurrencyName.isError()){
-                log.error("ERROR: "+validCurrencyName.getErrorMessage());
+                log.error(validCurrencyName.getErrorMessage());
                 return validCurrencyName;
             }
             if (car.getCheckCount() == null) {
@@ -144,15 +160,15 @@ public class UserService {
     public ResponseContainer editMyCar(Integer id, CarDto carDto, String username) {
         ResponseContainer responseContainer = new ResponseContainer();
         if(id == null){
-            log.error("ERROR: id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
         if(carDto == null){
-            log.error("ERROR: car is null");
+            log.error("car is null");
             return responseContainer.setErrorMessageAndStatusCode("car is null",HttpStatus.BAD_REQUEST.value());
         }
         if(username == null){
-            log.error("ERROR: username is null");
+            log.error("username is null");
             return responseContainer.setErrorMessageAndStatusCode("username is null",HttpStatus.BAD_REQUEST.value());
         }
         User user;
@@ -162,7 +178,10 @@ public class UserService {
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-
+        if(ObjectUtils.isEmpty(user)){
+            log.error("user not found");
+            return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
+        }
         Car car = carMapper.toCar(carDto);
         List<Car> cars = user.getCars();
         String ccy = carDto.getCurrencyName();
@@ -349,14 +368,19 @@ public class UserService {
 
     public ResponseContainer getAllManagers() {
         ResponseContainer responseContainer = new ResponseContainer();
-        List<UserDto> managers;
+        List<User> managers;
         try{
-            managers = userRepository.findByRole("MANAGER").orElse(null).stream().map(userMapper::toResponseDto).toList();
+            managers = userRepository.findByRole("MANAGER").orElse(null);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        responseContainer.setResult(managers);
+        if(CollectionUtils.isEmpty(managers)){
+            log.error("managers not found");
+            return responseContainer.setErrorMessageAndStatusCode("managers not found",HttpStatus.BAD_REQUEST.value());
+        }
+        List<UserDto> managersDto = managers.stream().map(userMapper::toResponseDto).toList();
+        responseContainer.setSuccessResult(managersDto);
         return responseContainer;
     }
 
@@ -372,6 +396,10 @@ public class UserService {
         }catch (Exception e){
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(foundUser)){
+            log.error("user not found");
+            return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
         foundUser.setEnabled(false);
         User saved;
@@ -418,9 +446,25 @@ public class UserService {
     public ResponseContainer createManager(UserDto userDto) {
         User user = userMapper.fromDto(userDto);
         ResponseContainer responseContainer = new ResponseContainer();
-        if (user == null){
+        if(ObjectUtils.isEmpty(userDto)){
             log.error("user is null");
             return responseContainer.setErrorMessageAndStatusCode("user is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(!StringUtils.hasText(user.getUsername())){
+            log.error("username is null");
+            return responseContainer.setErrorMessageAndStatusCode("username is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(!StringUtils.hasText(user.getPassword())){
+            log.error("password is null");
+            return responseContainer.setErrorMessageAndStatusCode("password is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(!StringUtils.hasText(user.getEmail())){
+            log.error("email is null");
+            return responseContainer.setErrorMessageAndStatusCode("email is null",HttpStatus.BAD_REQUEST.value());
+        }
+        if(ObjectUtils.isEmpty(user.getPhone())){
+            log.error("phone is null");
+            return responseContainer.setErrorMessageAndStatusCode("phone is null",HttpStatus.BAD_REQUEST.value());
         }
         ResponseContainer usernameAlreadyExistsResponseContainer = isUsernameAlreadyExists(user.getUsername(), responseContainer);
         if (usernameAlreadyExistsResponseContainer.isError()) {
@@ -468,6 +512,10 @@ public class UserService {
             log.error("user is null");
             return responseContainer.setErrorMessageAndStatusCode("user is null",HttpStatus.BAD_REQUEST.value());
         }
+        if(user.getRole().equals("MANAGER")){
+            log.error("user is already MANAGER");
+            return responseContainer.setErrorMessageAndStatusCode("user is already MANAGER",HttpStatus.BAD_REQUEST.value());
+        }
         user.setRole("MANAGER");
         User saved;
         try{
@@ -485,6 +533,17 @@ public class UserService {
         if(id == null){
             log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null", HttpStatus.BAD_REQUEST.value());
+        }
+        User user;
+        try{
+            user = userRepository.findById(id).orElse(null);
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if (ObjectUtils.isEmpty(user)){
+            log.error("user not found");
+            return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
         try {
             userRepository.deleteById(id);
@@ -513,6 +572,10 @@ public class UserService {
             log.error("user not found");
             return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
+        if(user.getPremium()){
+            log.error("user is already has premium");
+            return responseContainer.setErrorMessageAndStatusCode("user is already has premium",HttpStatus.BAD_REQUEST.value());
+        }
         user.setPremium(true);
         try{
             userRepository.save(user);
@@ -539,7 +602,7 @@ public class UserService {
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(sale == null){
-            log.error("ERROR: Currency does not exists");
+            log.error("Currency does not exists");
             return responseContainer.setErrorMessageAndStatusCode("Currency does not exists",HttpStatus.BAD_REQUEST.value());
         }
         car.setCurrencyValue(sale.getSale());
@@ -563,7 +626,7 @@ public class UserService {
         } catch (Exception e) {
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        if (user != null) {
+        if (!ObjectUtils.isEmpty(user)) {
             return responseContainer.setErrorMessageAndStatusCode("username already exists", HttpStatus.BAD_REQUEST.value());
         }
         return responseContainer;
@@ -576,7 +639,7 @@ public class UserService {
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if (user != null) {
-            return responseContainer.setErrorMessageAndStatusCode("username already exists", HttpStatus.BAD_REQUEST.value());
+            return responseContainer.setErrorMessageAndStatusCode("email already exists", HttpStatus.BAD_REQUEST.value());
         }
         return responseContainer;
 
@@ -589,7 +652,7 @@ public class UserService {
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if (user != null) {
-            return responseContainer.setErrorMessageAndStatusCode("username already exists", HttpStatus.BAD_REQUEST.value());
+            return responseContainer.setErrorMessageAndStatusCode("phone already exists", HttpStatus.BAD_REQUEST.value());
         }
         return responseContainer;
     }
@@ -645,7 +708,20 @@ public class UserService {
         if (car.getProducer()!= null &&(!producersAndModels.containsKey(car.getProducer()))) {
             return responseContainer.setErrorMessageAndStatusCode("Not legal producer",HttpStatus.BAD_REQUEST.value());
         }
-        if (car.getModel()!= null &&(!producersAndModels.containsValue(car.getModel()))) {
+
+        List<Model> models;
+        try {
+            models = modelRepository.findAll();
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(CollectionUtils.isEmpty(models)){
+            log.error("models not found");
+            return responseContainer.setErrorMessageAndStatusCode("models not found",HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        List<String> modelNames = models.stream().map(Model::getName).toList();
+        if (car.getModel()!= null &&(!modelNames.contains(car.getModel()))) {
             return responseContainer.setErrorMessageAndStatusCode("Not legal model",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allRegions = Arrays.stream(constants.getRegions()).toList();

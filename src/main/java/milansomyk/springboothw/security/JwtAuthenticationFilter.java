@@ -1,10 +1,7 @@
 package milansomyk.springboothw.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +24,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.SignatureException;
 
 @Component
 @RequiredArgsConstructor
@@ -45,8 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
-        String token = null;
-        String username = null;
+        String token;
+        String username;
         ResponseContainer responseContainer = new ResponseContainer();
         try {
             token = authorization.substring(AUTHORIZATION_HEADER_PREFIX.length());
@@ -55,11 +51,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             username = jwtService.extractUsername(token);
+            boolean refreshType = jwtService.isRefreshType(token);
 
 
-
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-            if (StringUtils.hasText(username) && securityContext.getAuthentication() == null && !jwtService.isRefreshType(token)) {
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            if (StringUtils.hasText(username) && securityContext.getAuthentication() == null && !refreshType) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(
                         userDetails.getUsername(),
@@ -67,7 +63,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         userDetails.getAuthorities());
                 securityContext.setAuthentication(authentication);
             }
+            if(refreshType){
+                throw new JwtException("expected for access token, but got refresh token");
+            }
         filterChain.doFilter(request,response);
+
         } catch (JwtException e){
             log.error(e.getMessage());
             responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.BAD_REQUEST.value());

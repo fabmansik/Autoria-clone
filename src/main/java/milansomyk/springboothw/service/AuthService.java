@@ -98,6 +98,10 @@ public class AuthService {
             log.error("refresh token expired");
             return responseContainer.setErrorMessageAndStatusCode( "refresh token expired",HttpStatus.UNAUTHORIZED.value());
         }
+        if (!jwtService.isRefreshType(refreshToken)){
+            log.error("refresh token expected, but got access token");
+            return responseContainer.setErrorMessageAndStatusCode("refresh token expected, but got access token",HttpStatus.BAD_REQUEST.value());
+        }
         String username;
         try {
             username = jwtService.extractUsername(refreshToken);

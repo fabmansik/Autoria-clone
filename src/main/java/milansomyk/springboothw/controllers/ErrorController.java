@@ -1,7 +1,6 @@
 package milansomyk.springboothw.controllers;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import milansomyk.springboothw.dto.ErrorDto;
+import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.dto.response.ResponseContainer;
 import org.hibernate.NonUniqueResultException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -10,54 +9,47 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 
 @RestControllerAdvice
+@Slf4j
 public class ErrorController {
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<ErrorDto> handleError(MethodArgumentNotValidException e, WebRequest webRequest){
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorDto.builder()
-                        .messages(e.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList())
-                        .build());
-    }
-    @ExceptionHandler({NonUniqueResultException.class})
-    public ResponseEntity<ErrorDto> handleError(NonUniqueResultException e, WebRequest webRequest){
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorDto.builder()
-                        .messages(List.of(e.getMessage()))
-                        .build());
-    }
-    @ExceptionHandler({IOException.class})
-    public ResponseEntity<ErrorDto> handleError(IOException e, WebRequest webRequest){
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ErrorDto.builder()
-                        .messages(Arrays.asList(e.getMessage()))
-                        .build());
-    }
-    @ExceptionHandler(value = NoHandlerFoundException.class)
-    public ResponseEntity<ErrorDto> exception(NoHandlerFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ErrorDto.builder()
-                        .messages(Arrays.asList(e.getMessage()))
-                        .build());
-    }
-    @ExceptionHandler(value = {ExpiredJwtException.class})
-    public ResponseEntity<ResponseContainer> handleExpiredJwtException(ExpiredJwtException ex, WebRequest request) {
-        String requestUri = ((ServletWebRequest)request).getRequest().getRequestURI().toString();
-        ResponseContainer responseContainer = new ResponseContainer(requestUri, HttpStatus.FORBIDDEN.value());
+    public ResponseEntity<ResponseContainer> handleError(MethodArgumentNotValidException e){
+        log.error(e.getMessage());
+        ResponseContainer responseContainer = new ResponseContainer();
+        responseContainer.setErrorMessageAndStatusCode(e.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList().toString(),HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-
+    @ExceptionHandler({NonUniqueResultException.class})
+    public ResponseEntity<ResponseContainer> handleError(NonUniqueResultException e){
+        log.error(e.getMessage());
+        ResponseContainer responseContainer = new ResponseContainer();
+        responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+    }
+    @ExceptionHandler({IOException.class})
+    public ResponseEntity<ResponseContainer> handleError(IOException e){
+        log.error(e.getMessage());
+        ResponseContainer responseContainer = new ResponseContainer();
+        responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+    }
+    @ExceptionHandler(value = NoHandlerFoundException.class)
+    public ResponseEntity<ResponseContainer> exception(NoHandlerFoundException e) {
+        log.error(e.getMessage());
+        ResponseContainer responseContainer = new ResponseContainer();
+        responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.FORBIDDEN.value());
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+    }
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity<ResponseContainer> exception(RuntimeException e){
+        log.error(e.getMessage());
+        ResponseContainer responseContainer = new ResponseContainer();
+        responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.FORBIDDEN.value());
+        return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
+    }
 }

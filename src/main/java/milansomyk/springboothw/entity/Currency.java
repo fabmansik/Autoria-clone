@@ -17,12 +17,7 @@ public class Currency {
     private String ccy;
     private String buy;
     private String sale;
-    public Currency(Integer id, String ccy, String buy, String sale){
-        this.id = id;
-        this.ccy = ccy;
-        this.buy = buy;
-        this.sale = sale;
-    }
+
     public Currency setBuy(String buy){
         this.buy = buy;
         return this;

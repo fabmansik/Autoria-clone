@@ -6,19 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-    public UserDto toDto(User user){
-        return UserDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .premium(user.getPremium())
-                .enabled(user.isEnabled())
-                .role(user.getRole())
-                .cars(user.getCars())
-                .build();
-    }public UserDto toResponseDto(User user){
+    public UserDto toResponseDto(User user){
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())

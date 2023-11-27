@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -168,6 +169,7 @@ public class CarService {
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
+
         try {
             carRepository.deleteById(id);
         } catch (Exception e){
@@ -208,7 +210,7 @@ public class CarService {
             ccy = "USD";
         }
         if (!ObjectUtils.isEmpty(minPrice)) {
-            List<ResponseContainer> responseContainers = null;
+            List<ResponseContainer> responseContainers = new ArrayList<>();
             String finalCcy = ccy;
             allCars.removeIf(car -> {
                 ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
@@ -218,7 +220,7 @@ public class CarService {
             return responseContainers.stream().filter(ResponseContainer::isError).findAny().orElse(null);
         }
         if (!ObjectUtils.isEmpty(maxPrice)) {
-            List<ResponseContainer> responseContainers = null;
+            List<ResponseContainer> responseContainers = new ArrayList<>();
             String finalCcy = ccy;
             allCars.removeIf(car -> {
                 ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
