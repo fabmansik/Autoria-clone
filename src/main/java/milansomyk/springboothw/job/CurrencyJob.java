@@ -20,6 +20,6 @@ public class CurrencyJob {
         if (responseContainer.isError()){
             log.error("Currency update failed: "+responseContainer.getErrorMessage());
         }
-        log.error("Currency value updated...");
+        log.info("Currency value updated...");
     }
 }

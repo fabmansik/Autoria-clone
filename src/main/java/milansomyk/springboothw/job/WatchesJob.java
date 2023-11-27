@@ -18,7 +18,7 @@ public class WatchesJob {
         } catch (Exception e){
             log.error(e.getMessage());
         }
-        log.error("Watches per day are null");
+        log.info("Watches per day are null");
     }
     @Scheduled(cron="@weekly")
     public void processPerWeek(){
@@ -27,7 +27,7 @@ public class WatchesJob {
         } catch (Exception e){
             log.error(e.getMessage());
         }
-        log.error("Watches per week are null");
+        log.info("Watches per week are null");
     }
 
     @Scheduled(cron="@monthly")
@@ -37,7 +37,7 @@ public class WatchesJob {
         } catch (Exception e){
             log.error(e.getMessage());
         }
-        log.error("Watches per month are null");
+        log.info("Watches per month are null");
     }
 
 }
