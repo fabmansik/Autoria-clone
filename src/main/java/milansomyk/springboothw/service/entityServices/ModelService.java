@@ -28,22 +28,22 @@ public class ModelService {
     public ResponseContainer addModel(Integer id, ModelDto model){
         ResponseContainer responseContainer = new ResponseContainer();
         if(ObjectUtils.isEmpty(id)){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
         if(ObjectUtils.isEmpty(model)){
-            log.info("model is null");
+            log.error("model is null");
             return responseContainer.setErrorMessageAndStatusCode("model is null",HttpStatus.BAD_REQUEST.value());
         }
         Producer producer;
         try {
             producer = producerRepository.findById(id).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(ObjectUtils.isEmpty(producer)){
-            log.info("producer not found");
+            log.error("producer not found");
             return responseContainer.setErrorMessageAndStatusCode("producer not found",HttpStatus.BAD_REQUEST.value());
         }
         List<Model> models = producer.getModels();
@@ -69,13 +69,13 @@ public class ModelService {
         Producer producer;
         ResponseContainer responseContainer = new ResponseContainer();
         if(ObjectUtils.isEmpty(id)){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null", HttpStatus.BAD_REQUEST.value());
         }
         try {
             producer = producerRepository.findById(id).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(ObjectUtils.isEmpty(producer)){

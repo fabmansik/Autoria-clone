@@ -56,22 +56,22 @@ public class UserService {
         User user = userMapper.fromDto(userDto);
         ResponseContainer responseContainer = new ResponseContainer();
         if(user.getUsername()==null || user.getEmail()!=null || user.getPhone()!=null){
-            log.info("ERROR: User is empty");
+            log.error("ERROR: User is empty");
             return responseContainer.setErrorMessageAndStatusCode("User is empty",HttpStatus.BAD_REQUEST.value());
         }
         ResponseContainer usernameAlreadyExistsResponseContainer = isUsernameAlreadyExists(user.getUsername(), responseContainer);
         if (usernameAlreadyExistsResponseContainer.isError()) {
-            log.info("ERROR:"+usernameAlreadyExistsResponseContainer.getErrorMessage());
+            log.error("ERROR:"+usernameAlreadyExistsResponseContainer.getErrorMessage());
             return usernameAlreadyExistsResponseContainer;
         }
         ResponseContainer emailAlreadyExists = isEmailAlreadyExists(user.getEmail(), responseContainer);
         if (emailAlreadyExists.isError()){
-            log.info("ERROR:"+emailAlreadyExists.getErrorMessage());
+            log.error("ERROR:"+emailAlreadyExists.getErrorMessage());
             return emailAlreadyExists;
         }
         ResponseContainer phoneNumberAlreadyUsed = isPhoneNumberAlreadyUsed(user.getPhone(), responseContainer);
         if (phoneNumberAlreadyUsed.isError()){
-            log.info("ERROR:"+phoneNumberAlreadyUsed.getErrorMessage());
+            log.error("ERROR:"+phoneNumberAlreadyUsed.getErrorMessage());
             return phoneNumberAlreadyUsed;
         }
 
@@ -101,19 +101,19 @@ public class UserService {
         if (user != null) {
             ResponseContainer validValues = isValidValues(car, responseContainer);
             if(validValues.isError()){
-                log.info("ERROR: "+validValues.getErrorMessage());
+                log.error("ERROR: "+validValues.getErrorMessage());
                 return validValues;
             }
 
             ResponseContainer carLimit = carLimit(user,responseContainer);
             if(carLimit.isError()){
-                log.info("ERROR: "+carLimit.getErrorMessage());
+                log.error("ERROR: "+carLimit.getErrorMessage());
                 return carLimit;
             }
 
             ResponseContainer validCurrencyName = currencyService.validCurrencyName(car.getCurrencyName(), responseContainer);
             if(validCurrencyName.isError()){
-                log.info("ERROR: "+validCurrencyName.getErrorMessage());
+                log.error("ERROR: "+validCurrencyName.getErrorMessage());
                 return validCurrencyName;
             }
             if (car.getCheckCount() == null) {
@@ -144,22 +144,22 @@ public class UserService {
     public ResponseContainer editMyCar(Integer id, CarDto carDto, String username) {
         ResponseContainer responseContainer = new ResponseContainer();
         if(id == null){
-            log.info("ERROR: id is null");
+            log.error("ERROR: id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
         if(carDto == null){
-            log.info("ERROR: car is null");
+            log.error("ERROR: car is null");
             return responseContainer.setErrorMessageAndStatusCode("car is null",HttpStatus.BAD_REQUEST.value());
         }
         if(username == null){
-            log.info("ERROR: username is null");
+            log.error("ERROR: username is null");
             return responseContainer.setErrorMessageAndStatusCode("username is null",HttpStatus.BAD_REQUEST.value());
         }
         User user;
         try{
             user = userRepository.findByUsername(username).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
@@ -171,19 +171,19 @@ public class UserService {
 
         ResponseContainer validValues = isValidValues(car, responseContainer);
         if(validValues.isError()){
-            log.info(validValues.getErrorMessage());
+            log.error(validValues.getErrorMessage());
             return validValues;
         }
 
         ResponseContainer personalCarAndIndex = isPersonalCarAndIndex(cars, id, responseContainer);
         if(personalCarAndIndex.isError()){
-            log.info(personalCarAndIndex.getErrorMessage());
+            log.error(personalCarAndIndex.getErrorMessage());
             return personalCarAndIndex;
         }
 
         ResponseContainer validCurrencyName = currencyService.validCurrencyName(ccy, responseContainer);
         if (validCurrencyName.isError()){
-            log.info(validCurrencyName.getErrorMessage());
+            log.error(validCurrencyName.getErrorMessage());
             return validCurrencyName;
         }
         Car foundCar;
@@ -191,11 +191,11 @@ public class UserService {
         try{
            foundCar = carRepository.findById(id).orElse(null);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if( foundCar == null){
-            log.info("car not found");
+            log.error("car not found");
             return responseContainer.setErrorMessageAndStatusCode("Car not found", HttpStatus.BAD_REQUEST.value());
         }
 
@@ -207,7 +207,7 @@ public class UserService {
             foundCar.setActive(true);
         }
         if (foundCar.getCheckCount() == 3) {
-            log.info("your car publish is not active. Car sent on moderation");
+            log.error("your car publish is not active. Car sent on moderation");
             responseContainer.setErrorMessageAndStatusCode("your car publish is not active. Car sent on moderation",HttpStatus.ACCEPTED.value());
             foundCar.addCheckCount();
             foundCar.setActive(false);
@@ -215,18 +215,18 @@ public class UserService {
             try {
                 save = carRepository.save(foundCar);
             } catch (Exception e){
-                log.info(e.getMessage());
+                log.error(e.getMessage());
                 return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
             ResponseContainer sendMail = managerModerationNotifier.sendMail(save, responseContainer);
             if(sendMail.isError()){
-                log.info(sendMail.getErrorMessage());
+                log.error(sendMail.getErrorMessage());
                 return responseContainer.setErrorMessageAndStatusCode(sendMail.getErrorMessage(), sendMail.getStatusCode());
             }
             return sendMail;
         }
         if (foundCar.getCheckCount() == 4) {
-            log.info("your car publish is not active. Car sent on moderation. Wait for moderator gmail answer");
+            log.error("your car publish is not active. Car sent on moderation. Wait for moderator gmail answer");
             responseContainer.setErrorMessageAndStatusCode("your car publish is not active. Car sent on moderation. Wait for moderator gmail answer",HttpStatus.ACCEPTED.value());
             return responseContainer;
         }
@@ -238,7 +238,7 @@ public class UserService {
         try{
             save = carRepository.save(foundCar);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
@@ -255,32 +255,32 @@ public class UserService {
         ResponseContainer responseContainer = new ResponseContainer();
         User user;
         if (id==null){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
         if(username==null){
-            log.info("username is null");
+            log.error("username is null");
             return responseContainer.setErrorMessageAndStatusCode("username is null", HttpStatus.BAD_REQUEST.value());
         }
         try {
             user = userRepository.findByUsername(username).orElse(null);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(user==null){
-            log.info("user not found");
+            log.error("user not found");
             return responseContainer.setErrorMessageAndStatusCode("User not found", HttpStatus.BAD_REQUEST.value());
         }
         List<Car> cars = user.getCars();
         ResponseContainer personalCarAndIndex = isPersonalCarAndIndex(cars, id, responseContainer);
         if (personalCarAndIndex.isError()){
-            log.info(personalCarAndIndex.getErrorMessage());
+            log.error(personalCarAndIndex.getErrorMessage());
             return personalCarAndIndex;
         }
         Car car = carRepository.findById(id).orElse(null);
         if (car == null){
-            log.info("car not found");
+            log.error("car not found");
             return responseContainer.setErrorMessageAndStatusCode("Car not found",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         cars.remove(car);
@@ -288,13 +288,13 @@ public class UserService {
         try{
             userRepository.save(user);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         try{
             carRepository.deleteById(id);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
@@ -306,17 +306,17 @@ public class UserService {
         User user;
         ResponseContainer responseContainer = new ResponseContainer();
         if(username==null){
-            log.info("username is null");
+            log.error("username is null");
             return responseContainer.setErrorMessageAndStatusCode("username is null",HttpStatus.BAD_REQUEST.value());
         }
         try{
             user = userRepository.findByUsername(username).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if (user==null){
-            log.info("user not found");
+            log.error("user not found");
             return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
         List<Car> cars = user.getCars();
@@ -339,7 +339,7 @@ public class UserService {
                     .map(userMapper::toResponseDto)
                     .collect(Collectors.toList());
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         allUsers.removeIf(userDto -> userDto.getRole().equals("ADMIN"));
@@ -353,7 +353,7 @@ public class UserService {
         try{
             managers = userRepository.findByRole("MANAGER").orElse(null).stream().map(userMapper::toResponseDto).toList();
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         responseContainer.setResult(managers);
@@ -363,14 +363,14 @@ public class UserService {
     public ResponseContainer banUser(Integer id) {
         ResponseContainer responseContainer = new ResponseContainer();
         if(id == null){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
         User foundUser;
         try {
              foundUser = userRepository.findById(id).orElse(null);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         foundUser.setEnabled(false);
@@ -378,7 +378,7 @@ public class UserService {
         try{
             saved = userRepository.save(foundUser);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         responseContainer.setResult(userMapper.toResponseDto(saved));
@@ -388,18 +388,18 @@ public class UserService {
     public ResponseContainer unBanUser(Integer id) {
         ResponseContainer responseContainer = new ResponseContainer();
         if(id == null){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
         User user;
         try{
             user = userRepository.findById(id).orElse(null);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(user==null){
-            log.info("user not found");
+            log.error("user not found");
             return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
         user.setEnabled(true);
@@ -407,7 +407,7 @@ public class UserService {
         try{
             saved = userRepository.save(user);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         responseContainer.setResult(userMapper.toResponseDto(saved));
@@ -419,22 +419,22 @@ public class UserService {
         User user = userMapper.fromDto(userDto);
         ResponseContainer responseContainer = new ResponseContainer();
         if (user == null){
-            log.info("user is null");
+            log.error("user is null");
             return responseContainer.setErrorMessageAndStatusCode("user is null",HttpStatus.BAD_REQUEST.value());
         }
         ResponseContainer usernameAlreadyExistsResponseContainer = isUsernameAlreadyExists(user.getUsername(), responseContainer);
         if (usernameAlreadyExistsResponseContainer.isError()) {
-            log.info(usernameAlreadyExistsResponseContainer.getErrorMessage());
+            log.error(usernameAlreadyExistsResponseContainer.getErrorMessage());
             return usernameAlreadyExistsResponseContainer;
         }
         ResponseContainer emailAlreadyExists = isEmailAlreadyExists(user.getEmail(), responseContainer);
         if (emailAlreadyExists.isError()){
-            log.info(emailAlreadyExists.getErrorMessage());
+            log.error(emailAlreadyExists.getErrorMessage());
             return emailAlreadyExists;
         }
         ResponseContainer phoneNumberAlreadyUsed = isPhoneNumberAlreadyUsed(user.getPhone(), responseContainer);
         if (phoneNumberAlreadyUsed.isError()){
-            log.info(phoneNumberAlreadyUsed.getErrorMessage());
+            log.error(phoneNumberAlreadyUsed.getErrorMessage());
             return phoneNumberAlreadyUsed;
         }
         user.setRole(Role.MANAGER.name());
@@ -444,7 +444,7 @@ public class UserService {
         try{
             saved = userRepository.save(user);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         responseContainer.setCreatedResult(userMapper.toResponseDto(saved));
@@ -454,18 +454,18 @@ public class UserService {
     public ResponseContainer setManager(Integer id) {
         ResponseContainer responseContainer = new ResponseContainer();
         if(id == null){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null", HttpStatus.BAD_REQUEST.value());
         }
         User user;
         try{
             user = userRepository.findById(id).orElse(null);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(user == null){
-            log.info("user is null");
+            log.error("user is null");
             return responseContainer.setErrorMessageAndStatusCode("user is null",HttpStatus.BAD_REQUEST.value());
         }
         user.setRole("MANAGER");
@@ -473,7 +473,7 @@ public class UserService {
         try{
             saved = userRepository.save(user);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         responseContainer.setSuccessResult(userMapper.toResponseDto(saved));
@@ -483,13 +483,13 @@ public class UserService {
     public ResponseContainer deleteUserById(Integer id) {
         ResponseContainer responseContainer = new ResponseContainer();
         if(id == null){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null", HttpStatus.BAD_REQUEST.value());
         }
         try {
             userRepository.deleteById(id);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         responseContainer.setSuccessResult("user with id: " + id + " was deleted");
@@ -499,18 +499,18 @@ public class UserService {
     public ResponseContainer setPremium(Integer id) {
         ResponseContainer responseContainer = new ResponseContainer();
         if(id == null){
-            log.info("id is null");
+            log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
         User user;
         try{
             user = userRepository.findById(id).orElse(null);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(user == null){
-            log.info("user not found");
+            log.error("user not found");
             return responseContainer.setErrorMessageAndStatusCode("user not found",HttpStatus.BAD_REQUEST.value());
         }
         user.setPremium(true);
@@ -535,11 +535,11 @@ public class UserService {
         try {
             sale = currencyRepository.findCurrencyByCcy(car.getCurrencyName()).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(sale == null){
-            log.info("ERROR: Currency does not exists");
+            log.error("ERROR: Currency does not exists");
             return responseContainer.setErrorMessageAndStatusCode("Currency does not exists",HttpStatus.BAD_REQUEST.value());
         }
         car.setCurrencyValue(sale.getSale());
@@ -549,7 +549,7 @@ public class UserService {
         try {
             saved = userRepository.save(user);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         List<Car> savedCars = saved.getCars();
@@ -622,7 +622,7 @@ public class UserService {
         try{
             user = userRepository.findByUsername(username).orElse(null);
         }catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
@@ -641,7 +641,7 @@ public class UserService {
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         Map<String, List<Model>> producersAndModels = producers.stream().collect(toMap(Producer::getName, Producer::getModels));
-        log.info(producersAndModels.toString());
+        log.error(producersAndModels.toString());
         if (car.getProducer()!= null &&(!producersAndModels.containsKey(car.getProducer()))) {
             return responseContainer.setErrorMessageAndStatusCode("Not legal producer",HttpStatus.BAD_REQUEST.value());
         }
@@ -664,42 +664,42 @@ public class UserService {
         try {
             allProducers = producerRepository.findAll();
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(CollectionUtils.isEmpty(allProducers)){
-            log.info("cars not found any");
+            log.error("cars not found any");
             return responseContainer.setResultAndStatusCode("cars not found any",HttpStatus.NO_CONTENT.value());
         }
         List<String> list = allProducers.stream().map(Producer::getName).toList();
         if (StringUtils.hasText(producer) && (!list.contains(producer))) {
-            log.info("not legal producer");
+            log.error("not legal producer");
             return responseContainer.setErrorMessageAndStatusCode("not legal producer",HttpStatus.BAD_REQUEST.value());
         }
         List<Model> allModels;
         try {
             allModels = modelRepository.findAll();
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(CollectionUtils.isEmpty(allModels)){
-            log.info("models not found any");
+            log.error("models not found any");
             return responseContainer.setResultAndStatusCode("models not found any",HttpStatus.NO_CONTENT.value());
         }
         List<String> modelNames = allModels.stream().map(Model::getName).toList();
         if (StringUtils.hasText(model) && (!modelNames.contains(model))) {
-            log.info("not legal model");
+            log.error("not legal model");
             return responseContainer.setErrorMessageAndStatusCode("not legal model",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allRegions = Arrays.stream(constants.getRegions()).toList();
         if (StringUtils.hasText(region) && (!allRegions.contains(region))) {
-            log.info("not legal region");
+            log.error("not legal region");
             return responseContainer.setErrorMessageAndStatusCode("not legal region",HttpStatus.BAD_REQUEST.value());
         }
         List<String> allTypes = Arrays.stream(constants.getTypes()).toList();
         if (StringUtils.hasText(types) && (!allTypes.contains(types))) {
-            log.info("not legal type");
+            log.error("not legal type");
             return responseContainer.setErrorMessageAndStatusCode("not legal type",HttpStatus.BAD_REQUEST.value());
         }
         return responseContainer;

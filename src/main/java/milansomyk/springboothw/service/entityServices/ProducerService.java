@@ -23,18 +23,18 @@ public class ProducerService {
     public ResponseContainer addProducer(ProducerDto producerDto){
         ResponseContainer responseContainer = new ResponseContainer();
         if(producerDto.getName().isEmpty()){
-            log.info("user is null");
+            log.error("user is null");
             return responseContainer.setErrorMessageAndStatusCode("user is null", HttpStatus.BAD_REQUEST.value());
         }
         Producer foundProducer;
         try {
             foundProducer = producerRepository.findProducerByName(producerDto.getName()).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(!ObjectUtils.isEmpty(foundProducer)){
-            log.info("producer with this name already exists");
+            log.error("producer with this name already exists");
             return responseContainer.setErrorMessageAndStatusCode("producer with this name already exists",HttpStatus.BAD_REQUEST.value());
         }
         responseContainer.setSuccessResult(producerMapper.toDto(producerRepository.save(producerMapper.fromDto(producerDto))));
@@ -47,7 +47,7 @@ public class ProducerService {
         try {
             list = producerRepository.findAll().stream().map(producerMapper::toDto).toList();
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(CollectionUtils.isEmpty(list)){

@@ -24,33 +24,33 @@ public class ImageService {
     public ResponseContainer deleteImage(Integer imageId, Integer carId){
         ResponseContainer responseContainer = new ResponseContainer();
         if(ObjectUtils.isEmpty(imageId)){
-            log.info("imageId is null");
+            log.error("imageId is null");
             return responseContainer.setErrorMessageAndStatusCode("imageId is null",HttpStatus.BAD_REQUEST.value());
         }
         if (ObjectUtils.isEmpty(carId)){
-            log.info("carId is null");
+            log.error("carId is null");
             return responseContainer.setErrorMessageAndStatusCode("carId is null",HttpStatus.BAD_REQUEST.value());
         }
         Car car;
         try {
             car = carRepository.findById(carId).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(ObjectUtils.isEmpty(car)){
-            log.info("car not found");
+            log.error("car not found");
             return responseContainer.setErrorMessageAndStatusCode("car not found",HttpStatus.BAD_REQUEST.value());
         }
         Image image;
         try {
             image = imageRepository.findById(imageId).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(ObjectUtils.isEmpty(image)){
-            log.info("image not found");
+            log.error("image not found");
             return responseContainer.setErrorMessageAndStatusCode("image not found", HttpStatus.BAD_REQUEST.value());
         }
         String imageName = image.getImageName();
@@ -60,19 +60,19 @@ public class ImageService {
         String path = System.getProperty("user.home") + File.separator + "adImages" + File.separator;
         File f = new File(path+imageName);
         if(!f.delete()){
-            log.info("failed to delete image");
+            log.error("failed to delete image");
             return responseContainer.setErrorMessageAndStatusCode("failed to delete image",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         try {
             carRepository.save(car);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         try {
             imageRepository.deleteById(imageId);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 

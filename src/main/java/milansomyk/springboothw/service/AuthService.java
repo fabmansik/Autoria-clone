@@ -44,14 +44,14 @@ public class AuthService {
                     .unauthenticated(signInRequest.getUsername(), signInRequest.getPassword());
             authenticationManager.authenticate(authentication);
         } catch (AuthenticationException e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
         UserDetails userDetails;
         try {
             userDetails = userDetailsService.loadUserByUsername(signInRequest.getUsername());
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         String username = userDetails.getUsername();
@@ -59,29 +59,29 @@ public class AuthService {
         try {
             user = userRepository.findByUsername(username).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(ObjectUtils.isEmpty(user)){
-            log.info("username not found");
+            log.error("username not found");
             return responseContainer.setErrorMessageAndStatusCode("username not found",HttpStatus.BAD_REQUEST.value());
         }
         if (!user.isEnabled()){
-            log.info("your account is banned");
+            log.error("your account is banned");
             return responseContainer.setErrorMessageAndStatusCode("your account is banned",HttpStatus.FORBIDDEN.value());
         }
         String token;
         try {
             token = jwtService.generateToken(userDetails);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         String refresh;
         try {
             refresh = jwtService.generateRefreshToken(userDetails);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         responseContainer.setSuccessResult(new JwtResponse(token, refresh));
@@ -90,48 +90,48 @@ public class AuthService {
     public ResponseContainer refresh(RefreshRequest refreshRequest){
         ResponseContainer responseContainer = new ResponseContainer();
         if(!StringUtils.hasText(refreshRequest.getRefresh())){
-            log.info("refresh is null");
+            log.error("refresh is null");
             return responseContainer.setErrorMessageAndStatusCode("refresh is null",HttpStatus.BAD_REQUEST.value());
         }
         String refreshToken = refreshRequest.getRefresh();
         if (jwtService.isTokenExpired(refreshToken)){
-            log.info("refresh token expired");
+            log.error("refresh token expired");
             return responseContainer.setErrorMessageAndStatusCode( "refresh token expired",HttpStatus.UNAUTHORIZED.value());
         }
         String username;
         try {
             username = jwtService.extractUsername(refreshToken);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(!StringUtils.hasText(username)){
-            log.info("username is null");
+            log.error("username is null");
             return responseContainer.setErrorMessageAndStatusCode("username is null",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         UserDetails userDetails;
         try {
             userDetails = userDetailsService.loadUserByUsername(username);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(ObjectUtils.isEmpty(userDetails)){
-            log.info("user details are null");
+            log.error("user details are null");
             return responseContainer.setErrorMessageAndStatusCode("user details are null",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         String access;
         try {
              access = jwtService.generateToken(userDetails);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         boolean isNeedNew;
         try {
             isNeedNew = !(jwtService.extractDuration(refreshToken).toHours() < 12);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if (!isNeedNew){

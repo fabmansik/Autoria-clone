@@ -24,22 +24,22 @@ public class AdminNotFoundNotifier {
     private final UserRepository userRepository;
     public ResponseContainer sendMail(String type, String object, ResponseContainer responseContainer){
         if(!StringUtils.hasText(type)){
-            log.info("type is null");
+            log.error("type is null");
             return responseContainer.setErrorMessageAndStatusCode("type is null",HttpStatus.BAD_REQUEST.value());
         }
         if(!StringUtils.hasText(object)){
-            log.info("object is null");
+            log.error("object is null");
             return responseContainer.setErrorMessageAndStatusCode("object is null", HttpStatus.BAD_REQUEST.value());
         }
         List<User> admins;
         try {
             admins = userRepository.findByRole(Role.ADMIN.name()).orElse(null);
         } catch (Exception e){
-            log.info(e.getMessage());
+            log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         if(CollectionUtils.isEmpty(admins)){
-            log.info("managers not found");
+            log.error("managers not found");
             return responseContainer.setErrorMessageAndStatusCode("managers not found",HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         List<String> adminsEmails = admins.stream().map(User::getEmail).toList();
@@ -52,7 +52,7 @@ public class AdminNotFoundNotifier {
             try {
                 mailSender.send(message);
             } catch (Exception e){
-                log.info(e.getMessage());
+                log.error(e.getMessage());
                 return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
         }

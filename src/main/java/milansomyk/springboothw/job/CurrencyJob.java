@@ -18,8 +18,8 @@ public class CurrencyJob {
     public void process(){
         ResponseContainer responseContainer = currencyService.uploadCurrencies();
         if (responseContainer.isError()){
-            log.info("Currency update failed: "+responseContainer.getErrorMessage());
+            log.error("Currency update failed: "+responseContainer.getErrorMessage());
         }
-        log.info("Currency value updated...");
+        log.error("Currency value updated...");
     }
 }

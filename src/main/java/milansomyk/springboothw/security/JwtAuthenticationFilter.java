@@ -1,6 +1,10 @@
 package milansomyk.springboothw.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.dto.response.ResponseContainer;
 import milansomyk.springboothw.service.JwtService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -21,6 +26,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.security.SignatureException;
 
 @Component
 @RequiredArgsConstructor
@@ -48,10 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             username = jwtService.extractUsername(token);
-        } catch (JwtException e){
-            log.info(e.getMessage());
-            responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.UNAUTHORIZED.value());
-        }
+
 
 
         SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -64,5 +68,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 securityContext.setAuthentication(authentication);
             }
         filterChain.doFilter(request,response);
+        } catch (JwtException e){
+            log.error(e.getMessage());
+            responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(responseContainer.getStatusCode());
+            OutputStream responseStream = response.getOutputStream();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(responseStream, responseContainer);
+            responseStream.flush();
+        }
     }
 }
