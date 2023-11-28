@@ -28,15 +28,15 @@ public class BuyerController {
         ResponseContainer responseContainer = userService.register(userDto);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @PostMapping("/views/{id}")
-    public ResponseEntity<ResponseContainer> addView(@PathVariable int id){
+    @PostMapping("/views")
+    public ResponseEntity<ResponseContainer> addView(@RequestParam int id){
         ResponseContainer responseContainer = carService.addWatchesTotal(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
 
     }
     @PostMapping("/search/notify-not-found")
-    public ResponseEntity<ResponseContainer> notifyNotFound(@RequestParam(required = false) String model, @RequestParam(required = false) String producer){
-        ResponseContainer responseContainer = carService.notifyNotFound(model, producer);
+    public ResponseEntity<ResponseContainer> notifyNotFound(@RequestParam(required = false) String model, @RequestParam(required = false) String producer, @RequestParam(required = false) Integer producerId){
+        ResponseContainer responseContainer = carService.notifyNotFound(model, producer, producerId);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
 

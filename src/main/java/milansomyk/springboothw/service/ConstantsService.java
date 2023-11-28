@@ -18,7 +18,7 @@ public class ConstantsService {
     }
     public ResponseContainer getAllRegions(){
         ResponseContainer responseContainer = new ResponseContainer();
-        responseContainer.setSuccessResult(constants.getTypes());
+        responseContainer.setSuccessResult(constants.getRegions());
         return responseContainer;
     }
 }

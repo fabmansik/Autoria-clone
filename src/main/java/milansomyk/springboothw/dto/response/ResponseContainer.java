@@ -1,12 +1,15 @@
 package milansomyk.springboothw.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import milansomyk.springboothw.view.Views;
 import org.springframework.http.HttpStatus;
 
 @Data
 @NoArgsConstructor
+@JsonView({Views.LevelBuyer.class,Views.LevelSeller.class, Views.LevelManagerAdmin.class})
 public class ResponseContainer {
     private Object result;
     private String errorMessage;

@@ -4,10 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.dto.CarDto;
 import milansomyk.springboothw.dto.consts.Constants;
-import milansomyk.springboothw.dto.response.AverageResponse;
-import milansomyk.springboothw.dto.response.CarResponse;
-import milansomyk.springboothw.dto.response.CarsResponse;
-import milansomyk.springboothw.dto.response.ResponseContainer;
+import milansomyk.springboothw.dto.response.*;
 import milansomyk.springboothw.entity.*;
 import milansomyk.springboothw.mapper.CarMapper;
 import milansomyk.springboothw.repository.*;
@@ -41,6 +38,7 @@ public class CarService {
     private final Constants constants;
     private final ImageRepository imageRepository;
     private final JwtService jwtService;
+    private final CurrencyRepository currencyRepository;
 
     public ResponseContainer findAveragePrice(String producer, String model, String ccy, String region, String username) {
         ResponseContainer responseContainer = new ResponseContainer();
@@ -48,11 +46,11 @@ public class CarService {
         if(premiumAccount.isError()){
             return premiumAccount;
         }
-        if ((boolean) premiumAccount.getResult()) {
+        if (! (boolean) premiumAccount.getResult()) {
             log.error("not premium account");
             return responseContainer.setErrorMessageAndStatusCode("not premium account", HttpStatus.FORBIDDEN.value());
         }
-        String currency;
+
         List<Car> cars;
         if (StringUtils.hasText(region)) {
             try{
@@ -69,20 +67,30 @@ public class CarService {
                 return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
         }
+
+        List<ResponseContainer> responseContainers = new ArrayList<>();
         if (!StringUtils.hasText(ccy)) {
-            cars.forEach(car -> car.setPrice(
-                    (int) currencyService.transferToCcy(ccy, car.getCurrencyName(), car.getPrice(), responseContainer).getResult()
-            ));
-            currency = ccy;
-        } else {
-            cars.forEach(car -> car.setPrice(
-                    (int) currencyService.transferToCcy("USD", car.getCurrencyName(), car.getPrice(),responseContainer).getResult()
-            ));
-            currency = "USD";
+            ccy="USD";
+        }
+        String finalCcy = ccy;
+        cars.forEach(car-> {
+            ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
+            if(responseContain.isError()) {
+                responseContainers.add(responseContain);
+            }else{
+                TransferCurrencyResponse result = (TransferCurrencyResponse) responseContain.getResult();
+                car.setCurrencyName(result.getCcy());
+                car.setPrice(result.getValue());
+                car.setCurrencyValue(result.getCurrencyValue());
+            }
+        });
+        ResponseContainer errorContainer = responseContainers.stream().filter(ResponseContainer::isError).findAny().orElse(null);
+        if (!ObjectUtils.isEmpty(errorContainer)){
+            return errorContainer;
         }
         List<Integer> prices = cars.stream().map(Car::getPrice).toList();
         Integer average = averageCalculator(prices);
-        responseContainer.setSuccessResult(new AverageResponse(average, currency, prices.size()));
+        responseContainer.setSuccessResult(new AverageResponse(average, finalCcy, prices.size()));
         return responseContainer;
     }
 
@@ -198,62 +206,94 @@ public class CarService {
             return validValues;
         }
         if (StringUtils.hasText(producer)) {
-            allCars.removeIf(car -> !Objects.equals(car.getProducer(), producer));
+            allCars.removeIf(car -> !car.getProducer().equalsIgnoreCase(producer));
         }
         if (StringUtils.hasText(model)) {
-            allCars.removeIf(car -> !Objects.equals(car.getModel(), model));
+            allCars.removeIf(car -> !car.getModel().equalsIgnoreCase(model));
         }
         if (StringUtils.hasText(region)) {
-            allCars.removeIf(car -> !Objects.equals(car.getRegion(), region));
+            allCars.removeIf(car -> !car.getRegion().equalsIgnoreCase(region));
         }
         if(!StringUtils.hasText(ccy)){
             ccy = "USD";
         }
-        if (!ObjectUtils.isEmpty(minPrice)) {
-            List<ResponseContainer> responseContainers = new ArrayList<>();
-            String finalCcy = ccy;
-            allCars.removeIf(car -> {
-                ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
+        String finalCcy = ccy;
+        List<ResponseContainer> responseContainers = new ArrayList<>();
+        allCars.forEach(car-> {
+            ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
+            if(responseContain.isError()) {
                 responseContainers.add(responseContain);
-                return (int) responseContain.getResult() <= minPrice;
-            });
-            return responseContainers.stream().filter(ResponseContainer::isError).findAny().orElse(null);
-        }
-        if (!ObjectUtils.isEmpty(maxPrice)) {
-            List<ResponseContainer> responseContainers = new ArrayList<>();
-            String finalCcy = ccy;
-            allCars.removeIf(car -> {
-                ResponseContainer responseContain = currencyService.transferToCcy(finalCcy, car.getCurrencyName(), car.getPrice(), responseContainer);
-                responseContainers.add(responseContain);
-                return (int) responseContain.getResult() >= maxPrice;
-            });
-            return responseContainers.stream().filter(ResponseContainer::isError).findAny().orElse(null);
+            }else{
+            TransferCurrencyResponse result = (TransferCurrencyResponse) responseContain.getResult();
+            car.setCurrencyName(result.getCcy());
+            car.setPrice(result.getValue());
+            car.setCurrencyValue(result.getCurrencyValue());
+            }
+        });
+        ResponseContainer errorContainer = responseContainers.stream().filter(ResponseContainer::isError).findAny().orElse(null);
+        if (!ObjectUtils.isEmpty(errorContainer)){
+            return errorContainer;
         }
 
+        Currency foundCurrency;
+        try{
+            foundCurrency = currencyRepository.findCurrencyByCcy(ccy).orElse(null);
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        if(ObjectUtils.isEmpty(foundCurrency)){
+            log.error("currency not found");
+            return responseContainer.setErrorMessageAndStatusCode("currency not found",HttpStatus.BAD_REQUEST.value());
+        }
+        if (minPrice!=null) {
+            allCars.removeIf(car -> car.getPrice() < minPrice);
+            if (!ObjectUtils.isEmpty(errorContainer)){
+                return errorContainer;
+            }
+        }
+        if (maxPrice!=null) {
+            allCars.removeIf(car -> car.getPrice() > maxPrice);
+        }
         if (StringUtils.hasText(type)){
-            allCars.removeIf(car -> !Objects.equals(car.getType(),type));
+            allCars.removeIf(car -> !car.getType().equalsIgnoreCase(type));
         }
 
-        responseContainer.setSuccessResult(new CarsResponse(allCars.stream().map(carMapper::toDto).toList()).setAmount(allCars.size()));
+        responseContainer.setSuccessResult(new CarsResponse().setCarsBasic(allCars.stream().map(carMapper::toBasicDto).toList()).setAmount(allCars.size()));
         return responseContainer;
     }
 
-    public ResponseContainer notifyNotFound(String model, String producer) {
+    public ResponseContainer notifyNotFound(String model, String producer, Integer producerId) {
         ResponseContainer responseContainer = new ResponseContainer();
         if (StringUtils.hasText(model)) {
-            Model foundModel;
+            Producer foundProducer;
+            if(ObjectUtils.isEmpty(producerId)){
+                log.error("producerId is required");
+                return responseContainer.setErrorMessageAndStatusCode("producerId is required",HttpStatus.BAD_REQUEST.value());
+            }
+
             try {
-                foundModel = modelRepository.findByName(model).orElse(null);
+                foundProducer = producerRepository.findById(producerId).orElse(null);
             } catch (Exception e){
                 log.error(e.getMessage());
                 return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
             }
-            if(!ObjectUtils.isEmpty(foundModel)){
-                return responseContainer.setErrorMessageAndStatusCode("Model already exists",HttpStatus.BAD_REQUEST.value());
+            if(ObjectUtils.isEmpty(foundProducer)){
+                log.error("Producer not found");
+                return responseContainer.setErrorMessageAndStatusCode("Producer not found",HttpStatus.BAD_REQUEST.value());
             }
+            List<Model> models = foundProducer.getModels();
+            List<String> modelNames = models.stream().map(Model::getName).toList();
+            String capitalized = StringUtils.capitalize(model.toLowerCase());
+            if(modelNames.contains(capitalized)){
+                log.error("model already exists");
+                return responseContainer.setErrorMessageAndStatusCode("model already exists",HttpStatus.BAD_REQUEST.value());
+            }
+
             return adminNotFoundNotifier.sendMail("Model", model, responseContainer);
+
         }
-        if (producer != null) {
+        if (!ObjectUtils.isEmpty(producer)) {
             Producer foundproducer;
             try {
                 foundproducer = producerRepository.findProducerByName(producer).orElse(null);

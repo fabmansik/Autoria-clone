@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import milansomyk.springboothw.dto.CurrencyDto;
 import milansomyk.springboothw.dto.consts.Constants;
-import milansomyk.springboothw.dto.response.CurrencyResponse;
 import milansomyk.springboothw.dto.response.ResponseContainer;
+import milansomyk.springboothw.dto.response.TransferCurrencyResponse;
 import milansomyk.springboothw.entity.Currency;
 import milansomyk.springboothw.repository.CurrencyRepository;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
@@ -46,6 +48,10 @@ public class CurrencyService {
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
+        if (CollectionUtils.isEmpty(all)){
+            log.error("Currencies is empty");
+            return responseContainer.setErrorMessageAndStatusCode("Currencies is empty",HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
         Currency foundByCcy;
         try {
             foundByCcy = currencyRepository.findCurrencyByCcy(ccy).orElse(null);
@@ -59,11 +65,11 @@ public class CurrencyService {
         }
         String sale = foundByCcy.getSale();
         Map<String, String> collect = all.stream().collect(Collectors.toMap(Currency::getCcy, Currency::getSale));
-        List<CurrencyResponse> list = new java.util.ArrayList<>(collect.entrySet().stream().map(e -> {
-            double i = (Double.parseDouble(sale) / Double.parseDouble(e.getValue()) * Double.parseDouble(value));
-            return new CurrencyResponse(e.getKey(), Double.toString(i));
+        List<TransferCurrencyResponse> list = new java.util.ArrayList<>(collect.entrySet().stream().map(e -> {
+            double i = (Double.parseDouble(value) * Double.parseDouble(sale)) / Double.parseDouble(e.getValue()) ;
+            return new TransferCurrencyResponse(e.getKey(), (int) i,e.getValue());
         }).toList());
-        list.removeIf(e -> e.getCurrencyName().equals(ccy));
+        list.removeIf(e -> e.getCcy().equalsIgnoreCase(ccy));
         responseContainer.setSuccessResult(list);
         return responseContainer;
     }
@@ -76,7 +82,10 @@ public class CurrencyService {
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-
+        if(CollectionUtils.isEmpty(all)){
+            log.error("Currencies is empty");
+            return responseContainer.setErrorMessageAndStatusCode("Currencies is empty",HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
         List<String> list = all.stream().map(Currency::getCcy).toList();
         if (!list.contains(currencyName)) {
             log.error("not valid currency name");
@@ -99,26 +108,39 @@ public class CurrencyService {
             log.error("value is null");
             return responseContainer.setErrorMessageAndStatusCode("value is null", HttpStatus.BAD_REQUEST.value());
         }
-        List<Currency> foundByCcy;
-        String[] ccies = new String[]{finalCcy, transferedCcy};
+        List<Currency> foundAll;
         try {
-            foundByCcy = currencyRepository.findCurrenciesByCcy(ccies).orElse(null);
+            foundAll = currencyRepository.findAll();
         } catch (Exception e) {
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        if (CollectionUtils.isEmpty(foundByCcy)) {
+        if(CollectionUtils.isEmpty(foundAll)){
+            log.error("currencies not found");
+            return responseContainer.setErrorMessageAndStatusCode("currencies not found",HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+
+        List<Currency> list = foundAll.stream().filter(item -> item.getCcy().equalsIgnoreCase(finalCcy)).toList();
+        if(CollectionUtils.isEmpty(list)){
+            log.error("ccy is illegal");
+            return responseContainer.setErrorMessageAndStatusCode("ccy is illegal",HttpStatus.BAD_REQUEST.value());
+        }
+        Currency foundFinal = list.get(0);
+        if(ObjectUtils.isEmpty(foundFinal)){
+            log.error("ccy is illegal");
+            return responseContainer.setErrorMessageAndStatusCode("ccy is illegal",HttpStatus.BAD_REQUEST.value());
+        }
+        Currency foundTransfered = foundAll.stream().filter(item-> item.getCcy().equalsIgnoreCase(transferedCcy)).toList().get(0);
+
+        if (ObjectUtils.isEmpty(foundFinal)||ObjectUtils.isEmpty(foundTransfered)) {
             log.error("not found currencies");
             return responseContainer.setErrorMessageAndStatusCode("not found currencies", HttpStatus.BAD_REQUEST.value());
         }
-        if (foundByCcy.size() < 2) {
-            log.error("not found currencies");
-            return responseContainer.setErrorMessageAndStatusCode("not found currencies", HttpStatus.BAD_REQUEST.value());
-        }
-        String sale = foundByCcy.get(0).getSale();
-        String ccyCurency = foundByCcy.get(1).getSale();
+
+        String sale = foundTransfered.getSale();
+        String ccyCurency = foundFinal.getSale();
         double submit = Double.parseDouble(sale) * Double.parseDouble(Integer.toString(value)) / Double.parseDouble(ccyCurency);
-        responseContainer.setSuccessResult(Math.toIntExact(Math.round(submit)));
+        responseContainer.setSuccessResult(new TransferCurrencyResponse(foundFinal.getCcy(), Math.toIntExact(Math.round(submit)),foundFinal.getSale()));
         return responseContainer;
     }
 

@@ -50,8 +50,8 @@ public class SellerController {
     }
     @JsonView(Views.LevelSeller.class)
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseContainer> editMyCar(@PathVariable int id, @RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
+    @PutMapping
+    public ResponseEntity<ResponseContainer> editMyCar(@RequestParam int id, @RequestBody @Valid CarDto carDto, @RequestHeader("Authorization") String auth){
         String username=extractUsernameFromAuth(auth);
         ResponseContainer responseContainer = userService.editMyCar(id, carDto, username);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
@@ -65,8 +65,8 @@ public class SellerController {
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseContainer> deleteMyCarById(@PathVariable int id, @RequestHeader("Authorization") String auth){
+    @DeleteMapping
+    public ResponseEntity<ResponseContainer> deleteMyCarById(@RequestParam int id, @RequestHeader("Authorization") String auth){
         String username=extractUsernameFromAuth(auth);
         ResponseContainer responseContainer = userService.deleteMyCar(id, username);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);

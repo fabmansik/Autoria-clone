@@ -22,27 +22,27 @@ public class ManagerController {
         ResponseContainer responseContainer = userService.getAllUsers();
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @GetMapping("/cars/{id}")
+    @GetMapping("/cars")
     @RolesAllowed({"MANAGER","ADMIN"})
-    public ResponseEntity<ResponseContainer> getCarById(@PathVariable int id){
+    public ResponseEntity<ResponseContainer> getCarById(@RequestParam int id){
         ResponseContainer responseContainer = carService.findById(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @PutMapping("/users/ban/{id}")
+    @PutMapping("/users/ban")
     @RolesAllowed({"MANAGER", "ADMIN"})
-    public ResponseEntity<ResponseContainer> banUser(@PathVariable int id){
+    public ResponseEntity<ResponseContainer> banUser(@RequestParam int id){
         ResponseContainer responseContainer = userService.banUser(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @PutMapping("/users/unban/{id}")
+    @PutMapping("/users/unban")
     @RolesAllowed({"MANAGER","ADMIN"})
-    public ResponseEntity<ResponseContainer> unBanUser(@PathVariable int id){
+    public ResponseEntity<ResponseContainer> unBanUser(@RequestParam int id){
         ResponseContainer responseContainer = userService.unBanUser(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
-    @DeleteMapping("/cars/{id}")
+    @DeleteMapping("/cars")
     @RolesAllowed({"MANAGER","ADMIN"})
-    public ResponseEntity<ResponseContainer> deleteCarById(@PathVariable int id){
+    public ResponseEntity<ResponseContainer> deleteCarById(@RequestParam int id){
         ResponseContainer responseContainer = carService.deleteById(id);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
