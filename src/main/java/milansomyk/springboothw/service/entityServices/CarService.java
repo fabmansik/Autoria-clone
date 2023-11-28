@@ -384,16 +384,13 @@ public class CarService {
         return responseContainer;
 
     }
-    public ResponseContainer deleteImage(Integer id, String filename, String username){
+    public ResponseContainer deleteImage(Integer id, String username){
         ResponseContainer responseContainer = new ResponseContainer();
         if(ObjectUtils.isEmpty(id)){
             log.error("id is null");
             return responseContainer.setErrorMessageAndStatusCode("id is null",HttpStatus.BAD_REQUEST.value());
         }
-        if(!StringUtils.hasText(filename)){
-            log.error("filename is null");
-            return responseContainer.setErrorMessageAndStatusCode("filename is null",HttpStatus.BAD_REQUEST.value());
-        }
+
         if(!StringUtils.hasText(username)){
             log.error("username is null");
             return responseContainer.setErrorMessageAndStatusCode("username is null", HttpStatus.BAD_REQUEST.value());
@@ -410,28 +407,33 @@ public class CarService {
             return responseContainer.setErrorMessageAndStatusCode("user not found", HttpStatus.BAD_REQUEST.value());
         }
         List<Car> cars = user.getCars();
-
-        ResponseContainer personalCarAndIndex = userService.isPersonalCarAndIndex(cars, id, responseContainer);
-        if(personalCarAndIndex.isError()){
-            log.error(personalCarAndIndex.getErrorMessage());
-            return personalCarAndIndex;
+        if(CollectionUtils.isEmpty(cars)){
+            log.error("no cars found");
+            return responseContainer.setErrorMessageAndStatusCode("no cars found",HttpStatus.BAD_REQUEST.value());
         }
-        Car car;
+
+        Image image;
         try {
-            car = carRepository.findById(id).orElse(null);
+            image = imageRepository.findById(id).orElse(null);
         }catch (Exception e){
             log.error(e.getMessage());
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        if(ObjectUtils.isEmpty(car)){
-            log.error("car not found");
-            return responseContainer.setErrorMessageAndStatusCode("car not found",HttpStatus.BAD_REQUEST.value());
+        if(ObjectUtils.isEmpty(image)){
+            log.error("image not found");
+            return responseContainer.setErrorMessageAndStatusCode("image not found",HttpStatus.BAD_REQUEST.value());
         }
+        List<Car> list = cars.stream().filter(car -> car.getImages().contains(image)).toList();
+        if(CollectionUtils.isEmpty(list)){
+            log.error("image not legal");
+            return responseContainer.setErrorMessageAndStatusCode("image not legal",HttpStatus.BAD_REQUEST.value());
+        }
+        Car car = list.get(0);
         List<Image> images = car.getImages();
-        images.removeIf(image -> image.getImageName().equals(filename));
+        images.removeIf(img-> Objects.equals(img.getId(), id));
         car.setImages(images);
         String path = System.getProperty("user.home") + File.separator + "adImages" + File.separator;
-        File f = new File(path+filename);
+        File f = new File(path+image.getImageName());
         if(!f.delete()){
             log.error("Failed to delete image");
             return responseContainer.setErrorMessageAndStatusCode("Failed to delete image",HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -442,11 +444,11 @@ public class CarService {
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
         try {
-            imageRepository.deleteByImageName(filename);
+            imageRepository.deleteById(id);
         } catch (Exception e){
             return responseContainer.setErrorMessageAndStatusCode(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
-        responseContainer.setSuccessResult("Image with filename: "+filename+" was deleted");
+        responseContainer.setSuccessResult("Image with id: "+id+" was deleted");
         return responseContainer;
     }
 

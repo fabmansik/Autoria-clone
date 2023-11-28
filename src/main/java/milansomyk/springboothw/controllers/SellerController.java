@@ -73,9 +73,9 @@ public class SellerController {
     }
     @RolesAllowed({"SELLER","ADMIN","MANAGER"})
     @DeleteMapping("/img")
-    public ResponseEntity<ResponseContainer> deleteImage(@RequestParam Integer id, @RequestParam String fileName, @RequestHeader("Authorization") String auth){
+    public ResponseEntity<ResponseContainer> deleteImage(@RequestParam Integer id, @RequestHeader("Authorization") String auth){
         String username=extractUsernameFromAuth(auth);
-        ResponseContainer responseContainer = carService.deleteImage(id, fileName, username);
+        ResponseContainer responseContainer = carService.deleteImage(id, username);
         return ResponseEntity.status(responseContainer.getStatusCode()).body(responseContainer);
     }
     public String extractUsernameFromAuth(String auth){
